@@ -6,42 +6,71 @@ void initializeGame(int choice, othelloGame &game,
 bool promptAIPlayer(int player);
 float promptAITimeLimit();
 
+/**
+ * @brief 主函数，用于运行井字棋游戏
+ *
+ * 该函数初始化井字棋游戏，提示用户输入游戏设置，并开始游戏。游戏循环进行，直到一方获胜或双方都无法下棋为止。
+ *
+ * @return 返回值始终为0，表示程序正常结束
+ */
 int main() {
     othelloBoard board;
+    // 初始化棋盘
     othelloGame game;
+    // 初始化游戏，询问用户是否愿意开始新游戏
     bool blackComputer = false, whiteComputer = false;
     float timeLimit = 0.0;
 
+    // 初始化游戏，适当提示用户
     // Initialize game, prompting user appropriately
     int newGame = promptNewGame();
     initializeGame(newGame, game, blackComputer, whiteComputer, timeLimit);
 
+    // 开始游戏
     // Play game
+    // 如果轮到电脑下棋，先执行电脑下棋
     if (game.toMove == -1) {
+        // 寻找合法移动
         game.board.findLegalMoves(-1, &game.board.moves);
+        // 显示棋盘
         game.board.displayBoard(-1);
+        // 显示合法移动
         game.board.displayLegalMoves();
+        // 电脑下棋
         game.move(-1);
 
+        // 检查游戏是否结束
         game.checkGameOver();
     }
 
+    // 当游戏未结束时循环进行
     //while (!game.passes[0] && !game.passes[1]) {
     while (!game.gameOver) {
+        // 寻找黑方合法移动
         game.board.findLegalMoves(1, &game.board.moves);
+        // 显示棋盘
         game.board.displayBoard(1);
+        // 显示合法移动
         game.board.displayLegalMoves();
+        // 黑方下棋
         game.move(1);
+        // 检查游戏是否结束
         game.checkGameOver();
 
+        // 如果游戏结束，跳出循环
         if (game.gameOver) {
             break;
         }
 
+        // 寻找白方合法移动
         game.board.findLegalMoves(-1, &game.board.moves);
+        // 显示棋盘
         game.board.displayBoard(-1);
+        // 显示合法移动
         game.board.displayLegalMoves();
+        // 白方下棋
         game.move(-1);
+        // 检查游戏是否结束
         game.checkGameOver();
     }
 
