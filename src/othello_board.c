@@ -103,38 +103,40 @@ void othelloBoard_displayBoard(int color) {
  *
  * @note 本函数没有返回值。
  */
-void othelloBoard::displayLegalMoves() {
+void othelloBoard_displayLegalMoves(void) {
     // 定义列和行的坐标字符串
-    std::string colCoord = "ABCDEFGH";
-    std::string rowCoord = "12345678";
+    const char *colCoord = "ABCDEFGH";
+    const char *rowCoord = "12345678";
 
     int colNum = 0, rowNum = 0; // 列和行的索引变量
     int moveNum = 1; // 合法移动的编号
-    std::list<int> flippedDiscs; // 记录翻转的棋子
+    // std::list<int> flippedDiscs; // 记录翻转的棋子
+    int flippedDiscs[OTHELLO_BOARD_SIZE] = {0};
+    int flippedDiscsSize = 0;
 
-    std::cout << "Legal moves:" << std::endl;
+    printf("\nLegal moves:\n");
 
     // 遍历moves中的所有移动
     for (auto keyval : this->moves) {
         // 将索引转换为坐标
-        index2coord(keyval.first, colNum, rowNum);
-        std::cout << "\t" << moveNum++ << "\t" << colCoord[colNum] << rowCoord[rowNum];
+        othelloBoard_index2coord(keyval.first, colNum, rowNum);
+        printf("\t%d\t%c%c",moveNum++,colCoord[colNum],rowCoord[rowNum]);
 
         // 获取当前移动翻转的棋子列表
         flippedDiscs = keyval.second;
-        std::cout << " will flip: ";
+        printf(" will flip: ");
 
         // 遍历翻转的棋子列表
         for (int disc : flippedDiscs) {
             // 将索引转换为坐标
-            index2coord(disc, colNum, rowNum);
-            std::cout << colCoord[colNum] << rowCoord[rowNum] << " ";
+            othelloBoard_index2coord(disc, colNum, rowNum);
+            printf("%c%c ",colCoord[colNum],rowCoord[rowNum]);
         }
 
-        std::cout << std::endl;
+        printf("\n");
     }
 
-    std::cout << std::endl;
+    printf("\n");
 }
 
 // Finds all legal moves, writing to a reference to a hash table with
@@ -147,7 +149,7 @@ void othelloBoard::displayLegalMoves() {
  * @param color 当前玩家的颜色
  * @param pMoves 用于存储合法走法的指针，键为棋盘位置，值为可能的走法列表
  */
-void othelloBoard::findLegalMoves(int color,
+void othelloBoard_findLegalMoves(int color,
         std::unordered_map<int, std::list<int>> *pMoves) {
     // 清除上一手棋的合法走法
     // Clear legal moves from previous ply
@@ -304,7 +306,7 @@ bool othelloBoard::terminalState() {
  * @param colNum 用于存储转换后的列号，范围从0到7。
  * @param rowNum 用于存储转换后的行号，范围从0到7。
  */
-void othelloBoard::index2coord(int index, int &colNum, int &rowNum) {
+void othelloBoard_index2coord(int index, int &colNum, int &rowNum) {
     // 将index除以8取余数得到列号
     // 计算列号
     colNum = index % 8;

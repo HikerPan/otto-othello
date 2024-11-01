@@ -27,6 +27,8 @@ typedef struct
         bool passes[2];
 }OTHELLO_BOARD;
 
+void othelloBoard_index2coord(int index, int &colNum, int &rowNum);
+
 
 class othelloBoard {
     public:
