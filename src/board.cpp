@@ -44,7 +44,8 @@ void othelloBoard::displayBoard(int color) {
             else if (this->positions[j] == -1) {
                 // 打印白色棋子
                 // White disc followed by green space
-                std::cout << "\033[48;5;34m\033[38;5;256m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
+                // std::cout << "\033[48;5;34m\033[38;5;256m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
+                std::cout << "\033[48;5;34m\033[38;5;15m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
             }
             else if (this->moves.find(j) != this->moves.end() && color == 1) {
                 // 打印黑色可落子标记
@@ -54,7 +55,8 @@ void othelloBoard::displayBoard(int color) {
             else if (this->moves.find(j) != this->moves.end() && color == -1) {
                 // 打印白色可落子标记
                 // White x followed by green space
-                std::cout << "\033[48;5;34m\033[38;5;256m\u2613 \033[0m"; // 打印白色X后跟绿色空格
+                // std::cout << "\033[48;5;34m\033[38;5;256m\u2613 \033[0m"; // 打印白色X后跟绿色空格
+                std::cout << "\033[48;5;34m\033[38;5;15m\u2613 \033[0m"; // 打印白色X后跟绿色空格
             }
             else {
                 // 打印空白格子
