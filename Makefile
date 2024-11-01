@@ -3,11 +3,14 @@
 SRC = src/
 EXECUTABLE = othello.exe
 
+# 添加调试标志
+CXXFLAGS += -g 
+
 all:
-	cd $(SRC); make; mv $(EXECUTABLE) ..;
+	cd $(SRC); make CXXFLAGS="$(CXXFLAGS)"; mv $(EXECUTABLE) ..;
 
 run:
 	./$(EXECUTABLE);
 
 clean:
-	rm $(EXECUTABLE); cd $(SRC); make clean;
+	rm -f $(EXECUTABLE); cd $(SRC); make clean;
