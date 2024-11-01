@@ -2,6 +2,16 @@
 // Heuristic is from the perspective that the calling player is the maximizing
 // player, regardless of the player's color
 
+/**
+ * @brief 评估当前棋盘的得分
+ *
+ * 根据当前棋盘状态和颜色，评估当前棋盘的得分。
+ *
+ * @param board 棋盘对象
+ * @param color 当前玩家颜色
+ *
+ * @return 返回一个整数，表示当前棋盘的得分
+ */
 int othelloHeuristic::evaluate(othelloBoard &board, int color) {
     if (board.terminalState()) {
         return 100000*utility(board, color);
@@ -62,19 +72,38 @@ int othelloHeuristic::discDifference(othelloBoard &board, int &color) {
 }
 
 // Number of possible moves
+/**
+ * @brief 计算棋子的移动性启发式值
+ *
+ * 根据当前棋盘状态计算指定颜色棋子的移动性启发式值。
+ * 移动性启发式值基于黑白棋子的合法移动数量差，差值越大，启发式值越高。
+ *
+ * @param board 棋盘对象
+ * @param color 当前计算移动性启发式值的棋子颜色，1表示黑子，-1表示白子
+ * @return 返回移动性启发式值
+ */
 int othelloHeuristic::mobility(othelloBoard &board, int &color) {
+    // 寻找白棋的合法走法
     board.findLegalMoves(1, &pMoves);
+    // 统计白棋的合法走法数量
     int blackMoves = pMoves.size();
+    // 清空合法走法列表
     pMoves.clear();
 
+    // 寻找黑棋的合法走法
     board.findLegalMoves(-1, &pMoves);
+    // 统计黑棋的合法走法数量
     int whiteMoves = pMoves.size();
+    // 清空合法走法列表
     pMoves.clear();
 
+    // 判断当前玩家颜色
     if (color == 1) {
+        // 返回黑棋的移动优势百分比
         return 100 * (blackMoves - whiteMoves) / (blackMoves + whiteMoves + 1);
     }
     else {
+        // 返回白棋的移动优势百分比
         return 100 * (whiteMoves - blackMoves) / (blackMoves + whiteMoves + 1);
     }
 }
@@ -87,6 +116,16 @@ int othelloHeuristic::potentialMobility(othelloBoard &board, int color) {
         / (myPotentialMobility + opponentPotentialMobility + 1);
 }
 
+/**
+ * @brief 计算玩家在棋盘上潜在的移动性
+ *
+ * 根据棋盘的当前状态，计算指定颜色玩家在棋盘上潜在的移动性。
+ *
+ * @param board 棋盘对象
+ * @param color 玩家颜色，-1 表示白棋，1 表示黑棋
+ *
+ * @return 潜在的移动性数值
+ */
 int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
     std::vector<int> boardInterior = {18, 19, 20, 21,
                                       26, 27, 28, 29,
@@ -174,23 +213,49 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
 }
 
 // Computes a lower bound on the number of stable discs
+/**
+ * @brief 计算当前棋盘上指定颜色的棋子稳定性得分
+ *
+ * 根据棋盘上指定颜色的棋子稳定性计算得分。稳定性得分是通过比较当前玩家和对手的稳定棋子数量差异来计算的。
+ *
+ * @param board 棋盘对象
+ * @param color 指定颜色的棋子（1 表示黑棋，-1 表示白棋）
+ * @return 当前玩家与对手稳定棋子数量的差值
+ */
 int othelloHeuristic::stability(othelloBoard &board, int color) {
+    // 清空稳定棋子集合
     stableDiscs.clear();
 
+    // 从四个角落寻找稳定棋子
+    // 左上角
     stableDiscsFromCorner(board, 0, color);
+    // 右上角
     stableDiscsFromCorner(board, 7, color);
+    // 左下角
     stableDiscsFromCorner(board, 56, color);
+    // 右下角
     stableDiscsFromCorner(board, 63, color);
 
+    // 计算己方稳定棋子数量
     int myStables = stableDiscs.size();
 
+    // 再次清空稳定棋子集合
+    stableDiscs.clear();
+
+    // 从四个角落寻找对方稳定棋子
+    // 左上角
     stableDiscsFromCorner(board, 0, -color);
+    // 右上角
     stableDiscsFromCorner(board, 7, -color);
+    // 左下角
     stableDiscsFromCorner(board, 56, -color);
+    // 右下角
     stableDiscsFromCorner(board, 63, -color);
 
+    // 计算对方稳定棋子数量
     int opponentStables = stableDiscs.size();
 
+    // 返回己方稳定棋子数量减去对方稳定棋子数量
     return myStables - opponentStables;
 }
 
