@@ -21,5 +21,6 @@ void add_move(int position, int *flips, int flip_count);
 Move *find_move(int position);
 void delete_move(int position);
 void clear_moves();
+void print_moves();
 
 #endif // MOVES_HASHMAP_H

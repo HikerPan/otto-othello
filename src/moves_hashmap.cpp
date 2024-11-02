@@ -1,4 +1,7 @@
 
+#include "stdio.h"
+#include "uthash.h"     // 引入 uthash.h
+#include "utlist.h"     // 引入 utlist.h
 #include "moves_hashmap.h"
 
 // 初始化哈希表根指针
@@ -50,5 +53,21 @@ void clear_moves() {
     Move *move, *tmp;
     HASH_ITER(hh, moves, move, tmp) {
         delete_move(move->position);
+    }
+}
+
+void print_moves() {
+    Move *move;
+    // 遍历哈希表
+    for (move = moves; move != NULL; move = (Move*)(move->hh.next)) {
+        printf("Move at position %d: ", move->position);
+
+        // 遍历翻转列表
+        ListNode *current = move->flip_list;
+        while (current != NULL) {
+            printf("%d ", current->value);
+            current = current->next;
+        }
+        printf("\n");
     }
 }
