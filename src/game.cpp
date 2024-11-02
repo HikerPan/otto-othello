@@ -10,7 +10,14 @@
 othelloGame::othelloGame() {
     // 初始化棋盘，将棋盘上的所有位置都初始化为0
     // 0代表该位置为空
-    this->board.positions.resize(64, 0);
+    // 初始化 board.positions 数组
+    utarray_new(this->board.positions, &ut_int_icd);
+
+    // 将 64 个位置初始化为 0
+    int initial_value = 0;
+    for (int i = 0; i < 64; ++i) {
+        utarray_push_back(this->board.positions, &initial_value);
+    }
 }
 
 // Initialize new game
@@ -27,12 +34,39 @@ void othelloGame::newGame(bool blackComputer, bool whiteComputer,
         float timeLimit) {
     // 初始化棋盘
     // Initialize board
-    std::vector<int> setup(64, 0);
-    setup[27] = -1;
-    setup[28] = 1;
-    setup[35] = 1;
-    setup[36] = -1;
-    this->board.positions.swap(setup);
+    // std::vector<int> setup(64, 0);
+
+    // setup[27] = -1;
+    // setup[28] = 1;
+    // setup[35] = 1;
+    // setup[36] = -1;
+    // this->board.positions.swap(setup);
+
+
+    UT_array *setup;
+    utarray_new(setup, &ut_int_icd); // 初始化存储整数的数组
+
+    // 将 64 个位置初始化为 0
+    int initial_value = 0;
+    for (int i = 0; i < 64; ++i) {
+        utarray_push_back(setup, &initial_value);
+    }
+
+    // 设置初始棋盘布局
+    int black_disc = 1;
+    int white_disc = -1;
+    *(int *)utarray_eltptr(setup, 27) = white_disc;
+    *(int *)utarray_eltptr(setup, 28) = black_disc;
+    *(int *)utarray_eltptr(setup, 35) = black_disc;
+    *(int *)utarray_eltptr(setup, 36) = white_disc;
+
+    // 将 `setup` 数组的内容赋给 `board.positions`
+    if (this->board.positions != NULL) {
+        utarray_free(this->board.positions);  // 释放旧数组内存
+    }
+    this->board.positions = setup;  // 将 setup 赋值给 positions
+
+    
 
     // 初始化玩家
     // Initialize players
@@ -50,6 +84,8 @@ void othelloGame::newGame(bool blackComputer, bool whiteComputer,
     this->board.timeLimit = timeLimit;
 }
 
+
+
 // Load game from file
 /**
  * @brief 加载游戏状态
@@ -64,13 +100,22 @@ void othelloGame::loadGame(std::string fileName, bool blackComputer,
         bool whiteComputer) {
     std::ifstream ifs(fileName.c_str());
 
+    // 检查文件是否有效
     if (!ifs.good()) {
         std::cout << "File does not exist!" << std::endl;
         return;
     }
 
-    // Load board
-    std::vector<int> setup(64, 0);
+    // 加载棋盘
+    UT_array *setup;
+    utarray_new(setup, &ut_int_icd); // 初始化存储整数的数组
+
+    // 将 64 个位置初始化为 0
+    int initial_value = 0;
+    for (int i = 0; i < 64; ++i) {
+        utarray_push_back(setup, &initial_value);
+    }
+
     std::string str;
     char ch;
     int idx = 0;
@@ -79,32 +124,37 @@ void othelloGame::loadGame(std::string fileName, bool blackComputer,
         std::getline(ifs, str);
         for (int j = 0; j < 16; j += 2) {
             ch = str[j];
+            int *position = (int *)utarray_eltptr(setup, idx);  // 使用 utarray_eltptr 获取指针
             if (ch == '1') {
-                setup[idx] = 1;
+                *position = 1;
             }
             else if (ch == '2') {
-                setup[idx] = -1;
+                *position = -1;
             }
             else if (ch == '0') {
-                setup[idx] = 0;
+                *position = 0;
             }
             else {
-                std::cout << "Invalid file format! Refer to the README." << std::endl;
+                printf("Invalid file format! Refer to the README.\n");
+                // std::cout << "Invalid file format! Refer to the README." << std::endl;
+                utarray_free(setup);  // 释放内存
                 return;
             }
-
             idx++;
         }
     }
-    this->board.discsOnBoard = 64 - std::count(setup.begin(), setup.end(), 0);
-    this->board.positions.swap(setup);
+    this->board.discsOnBoard = 64 - count_in_utarray(setup,0);
+    swapUTArray(&this->board.positions,&setup);
+    // this->board.positions.swap(setup);
 
+    // 初始化玩家
     // Initialize players
     this->blackPlayer.color = 1;
     this->blackPlayer.computer = blackComputer;
     this->whitePlayer.color = -1;
     this->whitePlayer.computer = whiteComputer;
 
+    // 加载当前走棋的玩家
     // Load player to move
     if (std::getline(ifs, str)) {
         ch = str[0];
@@ -115,34 +165,39 @@ void othelloGame::loadGame(std::string fileName, bool blackComputer,
             this->toMove = -1;
         }
         else {
-            std::cout << "Player to move must be 1 (black) or 2 (white)!"
-                << std::endl;
+            printf("Player to move must be 1 (black) or 2 (white)!\n");
+            // std::cout << "Player to move must be 1 (black) or 2 (white)!"
+            //     << std::endl;
             ifs.close();
             return;
         }
     }
     else {
-        std::cout << "Save file does not specify player to move!"
-            << std::endl;
+        printf("Save file does not specify player to move!\n");
+        // std::cout << "Save file does not specify player to move!"
+        //     << std::endl;
         ifs.close();
         return;
     }
 
+    // 加载时间限制
     // Load time limit
     if (std::getline(ifs, str)) {
         if (stof(str) > 0) {
             this->board.timeLimit = stof(str);
         }
         else {
-            std::cout << "Time limit must be a positive number!"
-                << std::endl;
+            printf("Time limit must be a positive number!\n");
+            // std::cout << "Time limit must be a positive number!"
+            //     << std::endl;
             ifs.close();
             return;
         }
     }
     else {
-        std::cout << "Save file does not specify computer time limit!"
-            << std::endl;
+        printf("Save file does not specify computer time limit!\n");
+        // std::cout << "Save file does not specify computer time limit!"
+        //     << std::endl;
         ifs.close();
         return;
     }
@@ -200,10 +255,12 @@ void othelloGame::checkGameOver() {
     // 如果双方都放弃了落子
     if (this->board.passes[0] && this->board.passes[1]) {
         // 统计黑子和白子的数量
-        int blackCount = std::count(this->board.positions.begin(),
-                this->board.positions.end(), 1);
-        int whiteCount = std::count(this->board.positions.begin(),
-                this->board.positions.end(), -1);
+        // int blackCount = std::count(this->board.positions.begin(),
+        //         this->board.positions.end(), 1);
+        int blackCount = count_in_utarray(this->board.positions,1);
+        // int whiteCount = std::count(this->board.positions.begin(),
+        //         this->board.positions.end(), -1);
+        int whiteCount = count_in_utarray(this->board.positions,-1);
 
         // 显示棋盘
         this->board.displayBoard(1);

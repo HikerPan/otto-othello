@@ -7,13 +7,18 @@
 #include <list>
 #include <tuple>
 #include <algorithm>
+#include "dynamic_array.h"
 
 class othelloBoard {
     public:
         // positions specifies all pieces on the board. Squares on the
         // board are indexed from 0 to 63, left to right, top to bottom.
         // positions[i] is 1 for a black disc, -1 for a white disc
-        std::vector<int> positions;
+        // std::vector<int> positions;
+        
+        // positions specifies all pieces on the board.
+        // We use utarray to replace std::vector<int>
+        UT_array *positions;
 
         int discsOnBoard = 4;
         float timeLimit = 0.0;

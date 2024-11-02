@@ -10,8 +10,17 @@
 othelloBoard::othelloBoard() {
     // 初始化棋盘，将棋盘上的每个位置初始化为0
     // positions是一个大小为64的数组，每个元素初始化为0
-    this->positions.resize(64, 0);
+    // this->positions.resize(64, 0);
     // positions数组初始化完毕
+
+    utarray_new(this->positions, &ut_int_icd);
+
+    // 将 64 个位置初始化为 0
+    int initial_value = 0;
+    for (int i = 0; i < 64; ++i) {
+        utarray_push_back(this->positions, &initial_value);
+    }
+    // positions 数组初始化完毕
 }
 
 // Display board: color is 1 for black, -1 for white
@@ -24,61 +33,47 @@ othelloBoard::othelloBoard() {
  */
 void othelloBoard::displayBoard(int color) {
     // 打印棋盘标题
-    std::cout << "    A B C D E F G H" << std::endl;
+    printf("    A B C D E F G H\n");
 
     int row = 1;
     for (int i = 0; i < 64; i += 8) {
         // 打印棋盘行号
-        // Green space
-        std::cout << " " << row++ << " "
-            << "\033[48;5;34m\033[38;5;232m \033[0m"; // 打印绿色空格
+        printf(" %d \033[48;5;34m\033[38;5;232m \033[0m", row++);
 
         // 遍历当前行的每一个格子
-        for (int j = i; j < i+8; j++) {
-            // 检查当前位置是否有棋子
-            if (this->positions[j] == 1) {
+        for (int j = i; j < i + 8; j++) {
+            // 获取 positions[j] 的值
+            int *pos_value = (int *)utarray_eltptr(this->positions, j);
+
+            if (pos_value && *pos_value == 1) {
                 // 打印黑色棋子
-                // Black disc followed by green space
-                std::cout << "\033[48;5;34m\033[38;5;232m\u2022 \033[0m"; // 打印黑色棋子后跟绿色空格
-            }
-            else if (this->positions[j] == -1) {
+                printf("\033[48;5;34m\033[38;5;232m\u2022 \033[0m");
+            } else if (pos_value && *pos_value == -1) {
                 // 打印白色棋子
-                // White disc followed by green space
-                // std::cout << "\033[48;5;34m\033[38;5;256m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
-                std::cout << "\033[48;5;34m\033[38;5;15m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
-            }
-            else if (this->moves.find(j) != this->moves.end() && color == 1) {
+                printf("\033[48;5;34m\033[38;5;15m\u2022 \033[0m");
+            } else if (this->moves.find(j) != this->moves.end() && color == 1) {
                 // 打印黑色可落子标记
-                // Black x followed by green space
-                std::cout << "\033[48;5;34m\033[38;5;232m\u2613 \033[0m"; // 打印黑色X后跟绿色空格
-            } 
-            else if (this->moves.find(j) != this->moves.end() && color == -1) {
+                printf("\033[48;5;34m\033[38;5;232m\u2613 \033[0m");
+            } else if (this->moves.find(j) != this->moves.end() && color == -1) {
                 // 打印白色可落子标记
-                // White x followed by green space
-                // std::cout << "\033[48;5;34m\033[38;5;256m\u2613 \033[0m"; // 打印白色X后跟绿色空格
-                std::cout << "\033[48;5;34m\033[38;5;15m\u2613 \033[0m"; // 打印白色X后跟绿色空格
-            }
-            else {
+                printf("\033[48;5;34m\033[38;5;15m\u2613 \033[0m");
+            } else {
                 // 打印空白格子
-                // Dot followed by green space
-                std::cout << "\033[48;5;34m\033[38;5;232m\u00B7 \033[0m"; // 打印点后跟绿色空格
+                printf("\033[48;5;34m\033[38;5;232m\u00B7 \033[0m");
             }
         }
 
         // 在棋盘底部打印双方棋子数量
         if (i == 24) {
-            std::cout << "\t\tBlack: " << std::count(this->positions.begin(),
-                    this->positions.end(), 1); // 打印黑色棋子数量
-        }
-        else if (i == 32) {
-            std::cout << "\t\tWhite: " << std::count(this->positions.begin(),
-                    this->positions.end(), -1); // 打印白色棋子数量
+            printf("\t\tBlack: %d", count_in_utarray(this->positions, 1));
+        } else if (i == 32) {
+            printf("\t\tWhite: %d", count_in_utarray(this->positions, -1));
         }
 
-        std::cout << std::endl; // 换行
+        printf("\n"); // 换行
     }
 
-    std::cout << std::endl; // 打印一个空行以分隔棋盘显示
+    printf("\n"); // 打印一个空行以分隔棋盘显示
 }
 
 // Display legal moves for player
@@ -140,7 +135,9 @@ void othelloBoard::findLegalMoves(int color,
     this->moves.clear();
 
     for (int i = 0; i < 64; i++) {
-        if (this->positions[i] == color) {
+        int *pos_value = (int *)utarray_eltptr(this->positions, i);
+        if (pos_value && *pos_value == color) {
+        // if (this->positions[i] == color) {
             // 检查行
             // Check rows
             findLegalMoveInDirection(i, color, -1, pMoves);
@@ -198,7 +195,11 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
         // 沿给定方向继续移动，记住任何相反颜色的棋子。如果遇到相同颜色的棋子则跳出循环
         // Keep moving in given direction, remembering any discs of the
         // opposite color. Break if we see any discs of our color.
-        currentSquare = this->positions[i];
+        int *pos_value = (int *)utarray_eltptr(this->positions, i);
+        if (pos_value) {
+            currentSquare = *pos_value;
+        }
+        // currentSquare = this->positions[i];
         if (currentSquare == color ||
                 (currentSquare == 0 && flippedDiscs.empty())) {
             break;
@@ -253,12 +254,20 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
     std::list<int> flippedDiscs = move.second;
 
     // 将移动位置设置为当前玩家颜色
-    this->positions[square] = color;
+    int *pos_value = (int *)utarray_eltptr(this->positions, square);
+    if (pos_value) {
+        *pos_value = color;
+    }
+    // this->positions[square] = color;
 
     // 遍历翻转的棋子列表
     for (auto disc : flippedDiscs) {
         // 将翻转的棋子位置设置为当前玩家颜色
-        this->positions[disc] = color;
+        int *pos_value = (int *)utarray_eltptr(this->positions, disc);
+        if (pos_value) {
+            *pos_value = color;
+        }
+        // this->positions[disc] = color;
     }
 }
 
