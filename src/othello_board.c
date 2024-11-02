@@ -286,7 +286,8 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
  *
  * @return 如果棋盘到达终局状态，返回true；否则返回false
  */
-bool othelloBoard::terminalState() {
+bool othelloBoard_terminalState(void) 
+{
     // 如果两位玩家都选择了放弃，则游戏结束
     if (this->passes[0] && this->passes[1]) {
         // 两位玩家都选择了放弃，返回true表示游戏结束

@@ -28,7 +28,7 @@ typedef struct
 }OTHELLO_BOARD;
 
 void othelloBoard_index2coord(int index, int &colNum, int &rowNum);
-
+bool othelloBoard_terminalState(void) ;
 
 class othelloBoard {
     public:
