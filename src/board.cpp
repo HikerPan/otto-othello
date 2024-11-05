@@ -247,6 +247,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
  *             - move.second 表示翻转的棋子列表
  */
 void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
+    
     // 获取移动的位置
     int square = move.first;
     // 获取翻转的棋子列表
@@ -255,11 +256,16 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
     // 将移动位置设置为当前玩家颜色
     this->positions[square] = color;
 
+    printf("\n[updateBoard] position %d, color %d\n",square,color);
+
+    printf("[updateBoard] flippedDiscs:");
     // 遍历翻转的棋子列表
     for (auto disc : flippedDiscs) {
         // 将翻转的棋子位置设置为当前玩家颜色
         this->positions[disc] = color;
+        printf("%d ",disc);
     }
+    printf("\n");
 }
 
 // Checks if game is a terminal state

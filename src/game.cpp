@@ -181,6 +181,7 @@ void othelloGame::move(int color) {
     // 判断当前是否允许下棋
     if (!this->board.passes[0]) {
         // 如果允许下棋，则更新棋盘
+        printf("\n[move] call updateBoard:\n");
         this->board.updateBoard(color, move);
     }
 }

@@ -4,33 +4,97 @@
 
 int othelloHeuristic::evaluate(othelloBoard &board, int color) {
     if (board.terminalState()) {
+        // std::cout << "Terminal state reached. Utility: " << utilityValue << "\n";
         return 100000*utility(board, color);
     }
 
     if (board.discsOnBoard <= 20) {
+
         // Opening game
-        return 5*mobility(board, color)
-            + 5*potentialMobility(board, color)
-            + 20*squareWeights(board, color)
-            + 10000*corners(board, color)
-            + 10000*stability(board, color);
+        int mobilityScore = mobility(board, color);
+        int potentialMobilityScore = potentialMobility(board, color);
+        int squareWeightsScore = squareWeights(board, color);
+        int cornersScore = corners(board, color);
+        int stabilityScore = stability(board, color);
+
+        std::cout << "Opening game phase\n";
+        std::cout << "Mobility: " << mobilityScore << "\n";
+        std::cout << "Potential Mobility: " << potentialMobilityScore << "\n";
+        std::cout << "Square Weights: " << squareWeightsScore << "\n";
+        std::cout << "Corners: " << cornersScore << "\n";
+        std::cout << "Stability: " << stabilityScore << "\n";
+
+        return 5 * mobilityScore
+            + 5 * potentialMobilityScore
+            + 20 * squareWeightsScore
+            + 10000 * cornersScore
+            + 10000 * stabilityScore;
+
+        // // Opening game
+        // return 5*mobility(board, color)
+        //     + 5*potentialMobility(board, color)
+        //     + 20*squareWeights(board, color)
+        //     + 10000*corners(board, color)
+        //     + 10000*stability(board, color);
     }
     else if (board.discsOnBoard <= 58) {
         // Midgame
-        return 10*discDifference(board, color)
-            + 2*mobility(board, color)
-            + 2*potentialMobility(board, color)
-            + 10*squareWeights(board, color)
-            + 100*parity(board)
-            + 10000*corners(board, color)
-            + 10000*stability(board, color);
+        int discDifferenceScore = discDifference(board, color);
+        int mobilityScore = mobility(board, color);
+        int potentialMobilityScore = potentialMobility(board, color);
+        int squareWeightsScore = squareWeights(board, color);
+        int parityScore = parity(board);
+        int cornersScore = corners(board, color);
+        int stabilityScore = stability(board, color);
+
+        std::cout << "Midgame phase\n";
+        std::cout << "Disc Difference: " << discDifferenceScore << "\n";
+        std::cout << "Mobility: " << mobilityScore << "\n";
+        std::cout << "Potential Mobility: " << potentialMobilityScore << "\n";
+        std::cout << "Square Weights: " << squareWeightsScore << "\n";
+        std::cout << "Parity: " << parityScore << "\n";
+        std::cout << "Corners: " << cornersScore << "\n";
+        std::cout << "Stability: " << stabilityScore << "\n";
+
+        return 10 * discDifferenceScore
+            + 2 * mobilityScore
+            + 2 * potentialMobilityScore
+            + 10 * squareWeightsScore
+            + 100 * parityScore
+            + 10000 * cornersScore
+            + 10000 * stabilityScore;
+
+        // Midgame
+        // return 10*discDifference(board, color)
+        //     + 2*mobility(board, color)
+        //     + 2*potentialMobility(board, color)
+        //     + 10*squareWeights(board, color)
+        //     + 100*parity(board)
+        //     + 10000*corners(board, color)
+        //     + 10000*stability(board, color);
     }
     else {
+        int discDifferenceScore = discDifference(board, color);
+        int parityScore = parity(board);
+        int cornersScore = corners(board, color);
+        int stabilityScore = stability(board, color);
+
+        std::cout << "Endgame phase\n";
+        std::cout << "Disc Difference: " << discDifferenceScore << "\n";
+        std::cout << "Parity: " << parityScore << "\n";
+        std::cout << "Corners: " << cornersScore << "\n";
+        std::cout << "Stability: " << stabilityScore << "\n";
+
+        return 500 * discDifferenceScore
+            + 500 * parityScore
+            + 10000 * cornersScore
+            + 10000 * stabilityScore;
+
         // Endgame
-        return 500*discDifference(board, color)
-            + 500*parity(board)
-            + 10000*corners(board, color)
-            + 10000*stability(board, color);
+        // return 500*discDifference(board, color)
+        //     + 500*parity(board)
+        //     + 10000*corners(board, color)
+        //     + 10000*stability(board, color);
     }
 }
 
@@ -63,28 +127,59 @@ int othelloHeuristic::discDifference(othelloBoard &board, int &color) {
 
 // Number of possible moves
 int othelloHeuristic::mobility(othelloBoard &board, int &color) {
+    printf("\n[othelloHeuristic::mobility]\n");
+
     board.findLegalMoves(1, &pMoves);
     int blackMoves = pMoves.size();
+    // 输出调试信息：黑棋的合法走法数量
+    printf("Black LegalMoves: %d\n", blackMoves);
     pMoves.clear();
 
     board.findLegalMoves(-1, &pMoves);
     int whiteMoves = pMoves.size();
+    // 输出调试信息：白棋的合法走法数量
+    printf("White LegalMoves: %d\n", whiteMoves);
     pMoves.clear();
 
     if (color == 1) {
-        return 100 * (blackMoves - whiteMoves) / (blackMoves + whiteMoves + 1);
+        // return 100 * (blackMoves - whiteMoves) / (blackMoves + whiteMoves + 1);
+        int mobilityScore = 100 * (blackMoves - whiteMoves) / (blackMoves + whiteMoves + 1);
+        printf("Mobility score for Black: %d\n", mobilityScore);
+        return mobilityScore;
     }
     else {
-        return 100 * (whiteMoves - blackMoves) / (blackMoves + whiteMoves + 1);
+        // return 100 * (whiteMoves - blackMoves) / (blackMoves + whiteMoves + 1);
+        // 输出调试信息：白棋的移动优势百分比
+        int mobilityScore = 100 * (whiteMoves - blackMoves) / (blackMoves + whiteMoves + 1);
+        printf("Mobility score for White: %d\n", mobilityScore);
+        return mobilityScore;
     }
 }
 
 int othelloHeuristic::potentialMobility(othelloBoard &board, int color) {
-    int myPotentialMobility = playerPotentialMobility(board, color);
-    int opponentPotentialMobility = playerPotentialMobility(board, -color);
+    // int myPotentialMobility = playerPotentialMobility(board, color);
+    // int opponentPotentialMobility = playerPotentialMobility(board, -color);
 
-    return 100 * (myPotentialMobility - opponentPotentialMobility)
+    // return 100 * (myPotentialMobility - opponentPotentialMobility)
+    //     / (myPotentialMobility + opponentPotentialMobility + 1);
+    printf("\n[othelloHeuristic::potentialMobility]\n");
+    // 计算当前玩家的潜在移动能力
+    int myPotentialMobility = playerPotentialMobility(board, color);
+    // 输出调试信息：当前玩家的潜在移动能力
+    printf("Potential mobility for color %d: %d\n", color, myPotentialMobility);
+
+    // 计算对手的潜在移动能力
+    int opponentPotentialMobility = playerPotentialMobility(board, -color);
+    // 输出调试信息：对手的潜在移动能力
+    printf("Potential mobility for opponent color %d: %d\n", -color, opponentPotentialMobility);
+
+    // 计算潜在移动能力得分
+    int potentialMobilityScore = 100 * (myPotentialMobility - opponentPotentialMobility)
         / (myPotentialMobility + opponentPotentialMobility + 1);
+    // 输出调试信息：潜在移动能力得分
+    printf("Potential mobility score: %d\n", potentialMobilityScore);
+
+    return potentialMobilityScore;
 }
 
 int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
@@ -108,22 +203,58 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
         lowerLeft = board.positions[square+7];
         lowerRight = board.positions[square+9];
 
-        if (here == -color && up == 0)
+        // if (here == -color && up == 0)
+        //     potentialMobility++;
+        // if (here == -color && down == 0)
+        //     potentialMobility++;
+        // if (here == -color && right == 0)
+        //     potentialMobility++;
+        // if (here == -color && right == 0)
+        //     potentialMobility++;
+        // if (here == -color && upperLeft == 0)
+        //     potentialMobility++;
+        // if (here == -color && upperRight == 0)
+        //     potentialMobility++;
+        // if (here == -color && lowerLeft == 0)
+        //     potentialMobility++;
+        // if (here == -color && lowerRight == 0)
+        //     potentialMobility++;
+
+        printf("Interior Square: %d, here: %d, up %d, down %d, left %d, right %d,upperLeft %d, upperRight %d, lowerLeft %d, lowerRight %d\n", 
+                            square,here,up,down,left,right,upperLeft,upperRight,lowerLeft,lowerRight);
+        
+        if (here == -color && up == 0) {
             potentialMobility++;
-        if (here == -color && down == 0)
+            printf("Increase Potential Mobility (Up): %d\n", potentialMobility);
+        }
+        if (here == -color && down == 0) {
             potentialMobility++;
-        if (here == -color && right == 0)
+            printf("Increase Potential Mobility (Down): %d\n", potentialMobility);
+        }
+        if (here == -color && left == 0) {
             potentialMobility++;
-        if (here == -color && right == 0)
+            printf("Increase Potential Mobility (Left): %d\n", potentialMobility);
+        }
+        if (here == -color && right == 0) {
             potentialMobility++;
-        if (here == -color && upperLeft == 0)
+            printf("Increase Potential Mobility (Right): %d\n", potentialMobility);
+        }
+        if (here == -color && upperLeft == 0) {
             potentialMobility++;
-        if (here == -color && upperRight == 0)
+            printf("Increase Potential Mobility (UpperLeft): %d\n", potentialMobility);
+        }
+        if (here == -color && upperRight == 0) {
             potentialMobility++;
-        if (here == -color && lowerLeft == 0)
+            printf("Increase Potential Mobility (UpperRight): %d\n", potentialMobility);
+        }
+        if (here == -color && lowerLeft == 0) {
             potentialMobility++;
-        if (here == -color && lowerRight == 0)
+            printf("Increase Potential Mobility (LowerLeft): %d\n", potentialMobility);
+        }
+        if (here == -color && lowerRight == 0) {
             potentialMobility++;
+            printf("Increase Potential Mobility (LowerRight): %d\n", potentialMobility);
+        }
     }
 
     std::vector<int> topRow = {10, 11, 12, 13};
@@ -132,9 +263,15 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
         left = board.positions[square-1];
         right = board.positions[square+1];
         if (here == -color && left == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (topRow left): %d\n", potentialMobility);
+        }
         if (here == -color && right == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (topRow left): %d\n", potentialMobility);
+        }
     }
 
     std::vector<int> bottomRow = {50, 51, 52, 53};
@@ -143,9 +280,15 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
         left = board.positions[square-1];
         right = board.positions[square+1];
         if (here == -color && left == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (bottomRow left): %d\n", potentialMobility);
+        }
         if (here == -color && right == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (bottomRow right): %d\n", potentialMobility);
+        }
     }
 
     std::vector<int> leftColumn = {17, 25, 33, 41};
@@ -154,9 +297,15 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
         up = board.positions[square-8];
         down = board.positions[square+8];
         if (here == -color && up == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (leftColumn up): %d\n", potentialMobility);
+        }
         if (here == -color && down == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (leftColumn down): %d\n", potentialMobility);
+        }
     }
 
     std::vector<int> rightColumn = {22, 30, 38, 46};
@@ -165,9 +314,15 @@ int othelloHeuristic::playerPotentialMobility(othelloBoard &board, int color) {
         up = board.positions[square-8];
         down = board.positions[square+8];
         if (here == -color && up == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (rightColumn up): %d\n", potentialMobility);
+        }
         if (here == -color && down == 0)
+        {
             potentialMobility++;
+            printf("Increase Potential Mobility (rightColumn up): %d\n", potentialMobility);
+        }
     }
 
     return potentialMobility;
