@@ -259,7 +259,7 @@ std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
     // 开始计时
     std::chrono::time_point<std::chrono::system_clock> startTime
         = this->startTimer();
-
+    printf("\n[computerMove] run : \n");
     // 初始化移动对象
     std::pair<int, std::list<int>> move;
     std::pair<int, std::list<int>> bestMove;
@@ -293,7 +293,7 @@ std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
         // 计算最大搜索深度
         int maxDepth = 64 - board.discsOnBoard;
 
-        // 如果最大深度小于10，则搜索到终端状态
+        // 如果最大深度小于10，则搜索到终端状态，不进行深度限制
         if (maxDepth < 10) {
             // 搜索到终端状态
             std::cout << "Searching remainder of game tree..." << std::endl;
@@ -396,6 +396,13 @@ float othelloPlayer::stopTimer(
  * @brief 在给定棋盘和时间限制下，使用深度限制的α-β剪枝算法搜索最佳走法
  *
  * 使用深度限制的α-β剪枝算法在给定棋盘和时间限制下搜索最佳走法。算法通过递归搜索可能的走法，并评估每种走法的启发式值，最终返回最佳走法。
+ * 
+ * 在 depthLimitedAlphaBeta 函数中，递归调用并不是通过显式的函数递归实现的，而是通过手动管理的节点栈（nodeStack）来模拟递归过程。
+ * 这种方法称为迭代加深搜索（Iterative Deepening Search），
+ * 主要优势是避免了函数递归带来的栈溢出风险，同时便于控制搜索深度。
+ * 
+ * 传统递归算法在每个递归调用时都会生成一个新的函数调用上下文，并保存当前的状态（如局部变量、函数参数等）。
+ * 在 depthLimitedAlphaBeta 中，通过 nodeStack 结构体数组手动维护这些状态，类似于手动管理的递归调用栈。
  *
  * @param board 当前棋盘状态
  * @param depthLimit 搜索的最大深度
@@ -410,13 +417,35 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
 
     // 初始化根节点
     // Initialize root node
+    // isMaxNode是用来表示是否是AI在下棋的标志，并不表示该节点积分值最大
+    // 初始下棋方位AI
     this->nodeStack[0].isMaxNode = true;
+    // alpha需要存储极大值，初始化为最小值
     this->nodeStack[0].alpha = INT_MIN;
+    // beta需要存储极小值，初始化为最大值
     this->nodeStack[0].beta = INT_MAX;
+    // 记录积分
     this->nodeStack[0].score = INT_MIN;
+    // 将实际board传递给节点
     this->nodeStack[0].board = board;
+
+    // [moveIterator]指向当前正在评估的走法
+    // 在搜索树的每个节点，AI 会依次评估所有可能的合法走法。
+    // moveIterator 用来遍历当前节点的所有合法走法。
+    // 每当 AI 生成一个新的子节点时，moveIterator 会递增，指向下一个需要评估的走法
     this->nodeStack[0].moveIterator = this->nodeStack[0].board.moves.begin();
+
+    // [prevIterator]指向上一个已经评估过的走法
+    // 在评估完一个走法后，记录该走法的位置。
+    // 如果当前走法最终被选为最优走法，可以快速访问
+    // 每次移动 moveIterator 之后，prevIterator 会更新为指向上一个评估过的走法
     this->nodeStack[0].prevIterator = this->nodeStack[0].moveIterator;
+
+    // [lastMove]指向合法走法集合的结束位置
+    // 用来确定当前节点是否已经评估了所有的合法走法。
+    // 当 moveIterator 等于 lastMove 时，表示当前节点的所有走法都已经评估完毕，可以回溯到上一个节点
+    // 初始化时，lastMove 指向合法走法集合的结束位置。
+    // 在 moveIterator 遍历到 lastMove 时，意味着当前节点的评估已完成
     this->nodeStack[0].lastMove = this->nodeStack[0].board.moves.end();
 
     int depth = 0;
@@ -424,14 +453,22 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
     std::unordered_map<int, std::list<int>>::iterator bestMove =
         this->nodeStack[0].board.moves.begin();
 
+    printf("\n[depthLimitedAlphaBeta] run......\n");
+
     // 当尚未评估根节点的所有子节点时
     // While we have not evaluated all the root's children
     while (true) {
         // 如果已评估完所有子节点
         // If we have evaluated all children
+        // 当所有节点被递归调用完成，通过depth--来进行回溯
         if (this->nodeStack[depth].moveIterator
                 == this->nodeStack[depth].lastMove) {
+            printf("\n[depthLimitedAlphaBeta]we have evaluated all children\n");
+            // 回溯到上一个节点，如果==0表示是初始节点
+            // 所有子节点已评估完毕或达到叶节点，回溯
             if (depth-- == 0) {
+                //如果 nodeStack[1].score 明显优于 nodeStack[0].score，选择 nodeStack[1]。
+                //如果评分相同，则使用 rand() % 2 == 0 随机决定是否选择 nodeStack[1]，增加不确定性。
                 if (this->nodeStack[1].score > this->nodeStack[0].score
                         || (this->nodeStack[1].score == this->nodeStack[0].score
                             && rand() % 2 == 0)) {
@@ -439,6 +476,7 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
                     bestMove = this->nodeStack[0].prevIterator;
                 }
 
+                // 如果评分大于alpha，更新alpha值
                 if (this->nodeStack[0].score > this->nodeStack[0].alpha) {
                     this->nodeStack[0].alpha = this->nodeStack[0].score;
                 }
@@ -446,7 +484,11 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
                 break;
             }
 
+            // 如果当前是AI，需要计算极大值
             if (this->nodeStack[depth].isMaxNode) {
+                printf("\n[depthLimitedAlphaBeta] it's MaxNode.\n");
+                //如果 nodeStack[depth+1].score 明显优于 nodeStack[depth].score，选择 nodeStack[depth+1]。
+                //如果评分相同，则使用 rand() % 2 == 0 随机决定是否选择 nodeStack[depth+1]，增加不确定性。
                 if (this->nodeStack[depth+1].score > this->nodeStack[depth].score
                         || (this->nodeStack[depth+1].score == this->nodeStack[depth].score
                             && rand() % 2 == 0)) {
@@ -456,10 +498,12 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
                     }
                 }
 
+                // 如果评分大于alpha，更新alpha值
                 if (this->nodeStack[depth].score > this->nodeStack[depth].alpha) {
                     this->nodeStack[depth].alpha = this->nodeStack[depth].score;
                 }
             }
+            // 如果当前是人类，需要计算极小值
             else {
                 if (this->nodeStack[depth+1].score < this->nodeStack[depth].score) {
                     this->nodeStack[depth].score = this->nodeStack[depth+1].score;
@@ -471,8 +515,11 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
             }
         }
         // 如果可以剪枝
+        // 剪枝条件，回溯
         // If we can prune
         else if (this->nodeStack[depth].beta <= this->nodeStack[depth].alpha) {
+            printf("\n[depthLimitedAlphaBeta] we can prune.\n");
+
             if (depth-- == 0) {
                 if (this->nodeStack[1].score > this->nodeStack[0].score
                     || (this->nodeStack[1].score == this->nodeStack[0].score
@@ -519,22 +566,37 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
             }
         }
         else {
+            // 向下深入，生成子节点
+            // 该分支是模拟递归，向下深入
+            // 在每个节点，生成所有可能的子节点。
+            // 每个子节点对应的状态被推入 nodeStack，并更新 depth 来表示当前搜索深度的增加。
+            // 通过更新 moveIterator 和 board.updateBoard() 方法来生成新的棋盘状态。
             // 生成下一个节点，增加迭代器
             // Generate next node, increment iterators
+
+            // 将当前盘面传递给下一个节点
             this->nodeStack[depth+1].board = this->nodeStack[depth].board;
+            printf("\n[depthLimitedAlphaBeta] call updateBoard:\n");
+
+            // 虚拟下棋
             this->nodeStack[depth+1].board.updateBoard(
                     (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
                     *this->nodeStack[depth].moveIterator);
+
+            // 迭代器更新
             this->nodeStack[depth].prevIterator = this->nodeStack[depth].moveIterator;
             this->nodeStack[depth].moveIterator++;
 
             // 如果下一个深度未达到深度限制
             // If the next depth is not at the depth limit
             if (depth + 1 < depthLimit) {
+                // 深度未超过限制，深入下一层
+                printf("\nIf the next depth is not at the depth limit, depth %d, depthLimit %d\n",depth,depthLimit);
                 depth++;
-
+                
                 // 初始化栈中的下一个节点
                 // Initialize next node in stack
+                // 实现AI与人类棋手的角色互换
                 this->nodeStack[depth].isMaxNode = !this->nodeStack[depth-1].isMaxNode;
                 this->nodeStack[depth].score =
                     (this->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
@@ -571,9 +633,12 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
             }
             else {
                 // 节点为叶节点：评估启发式函数并更新值
+                // 达到深度限制，计算叶节点评分
                 // The node is a leaf: evaluate heuristic and update values
+                printf("\nThe node is a leaf: evaluate heuristic and update values\n");
                 leafScore = this->heuristic.evaluate(
                         this->nodeStack[depth+1].board, this->color);
+                printf("\nleafScore %d .\n",leafScore);
 
                 if (this->nodeStack[depth].isMaxNode) {
                     if (leafScore > this->nodeStack[depth].score) {
@@ -610,3 +675,4 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
 
     return *bestMove;
 }
+

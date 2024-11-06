@@ -48,12 +48,25 @@ int main() {
     while (!game.gameOver) {
         // 寻找黑方合法移动
         game.board.findLegalMoves(1, &game.board.moves);
+        // 调试：打印 pMoves 中的内容
+        std::cout << "Blac Legal Moves:" << std::endl;
+
+        // for (const auto &entry : game.board.moves) {
+        //     std::cout << "Move at position " << entry.first << " will flip discs at: ";
+        //     for (int disc : entry.second) {
+        //         std::cout << disc << " ";
+        //     }
+        //     std::cout << std::endl;
+        // }
+
         // 显示棋盘
         game.board.displayBoard(1);
         // 显示合法移动
         game.board.displayLegalMoves();
+
         // 黑方下棋
         game.move(1);
+
         // 检查游戏是否结束
         game.checkGameOver();
 
@@ -110,6 +123,7 @@ int promptNewGame() {
 // Initialize game appropriately
 void initializeGame(int choice, othelloGame &game,
         bool &blackComputer, bool &whiteComputer, float &timeLimit) {
+    // new game
     if (choice == 1) {
         blackComputer = promptAIPlayer(1);
         whiteComputer = promptAIPlayer(-1);

@@ -156,6 +156,16 @@ void othelloBoard::findLegalMoves(int color,
             findLegalMoveInDirection(i, color, 7, pMoves);
         }
     }
+
+    // 调试：打印 pMoves 中的内容
+    // std::cout << "\nLegal Moves:" << std::endl;
+    // for (const auto &entry : *pMoves) {
+    //     std::cout << "Move at position " << entry.first << " will flip discs at: ";
+    //     for (int disc : entry.second) {
+    //         std::cout << disc << " ";
+    //     }
+    //     std::cout << std::endl;
+    // }
 }
 
 // Helper function to find a legal move given a disc, its color and a direction.
@@ -270,6 +280,22 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
         // this->positions[disc] = color;
     }
 }
+
+// void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
+//     // 获取移动的位置
+//     int square = move.first;
+//     // 获取翻转的棋子列表
+//     std::list<int> flippedDiscs = move.second;
+
+//     // 将移动位置设置为当前玩家颜色
+//     this->positions[square] = color;
+
+//     // 遍历翻转的棋子列表
+//     for (auto disc : flippedDiscs) {
+//         // 将翻转的棋子位置设置为当前玩家颜色
+//         this->positions[disc] = color;
+//     }
+// }
 
 // Checks if game is a terminal state
 /**
