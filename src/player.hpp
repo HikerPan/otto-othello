@@ -7,6 +7,7 @@
 #include <climits>
 #include <iterator>
 #include <sstream>
+#include <cstring>
 #include "database.hpp"
 #include "heuristic.hpp"
 
@@ -16,9 +17,12 @@ class othelloPlayer {
         bool computer;
 
         // Driver for moves, regardless of player
+        // std::pair<int, std::list<int>> move(othelloBoard &board,
+        //         std::unordered_map<int, std::list<int>> &legalMoves,
+        //         bool &pass, std::string &moveHistory);
         std::pair<int, std::list<int>> move(othelloBoard &board,
-                std::unordered_map<int, std::list<int>> &legalMoves,
-                bool &pass, std::string &moveHistory);
+                        std::unordered_map<int, std::list<int>> &legalMoves,
+                        bool &pass, char *moveHistory);
 
     private:
         struct node {
@@ -46,8 +50,10 @@ class othelloPlayer {
         int coord2index(std::string coord);
 
         // Driver for the AI algorithm
+        // std::pair<int, std::list<int>> computerMove(othelloBoard &board,
+        //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, std::string &moveHistory);
         std::pair<int, std::list<int>> computerMove(othelloBoard &board,
-                std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, std::string &moveHistory);
+                std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, char *moveHistory);
 
         // Returns time point
         std::chrono::time_point<std::chrono::system_clock> startTimer();

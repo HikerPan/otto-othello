@@ -13,9 +13,12 @@
  * @param moveHistory 历史移动记录
  * @return 返回移动结果，包含移动的行索引和列索引列表
  */
+// std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
+//         std::unordered_map<int, std::list<int>> &legalMoves,
+//         bool &pass, std::string &moveHistory) {
 std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
         std::unordered_map<int, std::list<int>> &legalMoves,
-        bool &pass, std::string &moveHistory) {
+        bool &pass, char *moveHistory) {
 
     // 初始化移动选择
     std::pair<int, std::list<int>> moveChoice;
@@ -32,7 +35,8 @@ std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
     }
 
     // 将移动记录添加到历史记录中
-    moveHistory.append(std::to_string(moveChoice.first) + ",");
+    // moveHistory.append(std::to_string(moveChoice.first) + ",");
+    sprintf(moveHistory,"%d,",moveChoice.first);
 
     // 返回移动选择
     return moveChoice;
@@ -253,9 +257,12 @@ int othelloPlayer::coord2index(std::string coord) {
  * @param moveHistory 走法历史记录
  * @return 返回电脑走法的行列索引对
  */
+// std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
+//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
+//         std::string &moveHistory) {
 std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
-        std::string &moveHistory) {
+        char *moveHistory) {
     // 开始计时
     std::chrono::time_point<std::chrono::system_clock> startTime
         = this->startTimer();

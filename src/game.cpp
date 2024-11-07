@@ -13,6 +13,7 @@ othelloGame::othelloGame() {
     // 0代表该位置为空
     // this->board.positions.resize(64, 0);
     memset(this->board.positions,0,OTHELLO_BOARD_SIZE*sizeof(int));
+    memset(this->moveHistory,0,MAX_MOVE_HISTORY_LEN*sizeof(char));
 }
 
 // Initialize new game
