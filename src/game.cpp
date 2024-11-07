@@ -1,4 +1,5 @@
 #include "game.hpp"
+#include <cstring>
 
 // Constructor
 /**
@@ -10,7 +11,8 @@
 othelloGame::othelloGame() {
     // 初始化棋盘，将棋盘上的所有位置都初始化为0
     // 0代表该位置为空
-    this->board.positions.resize(64, 0);
+    // this->board.positions.resize(64, 0);
+    memset(this->board.positions,0,OTHELLO_BOARD_SIZE*sizeof(int));
 }
 
 // Initialize new game
@@ -32,7 +34,12 @@ void othelloGame::newGame(bool blackComputer, bool whiteComputer,
     setup[28] = 1;
     setup[35] = 1;
     setup[36] = -1;
-    this->board.positions.swap(setup);
+    
+    // this->board.positions.swap(setup);
+    for(size_t i = 0;i<OTHELLO_BOARD_SIZE;i++)
+    {
+        this->board.positions[i] = setup[i];
+    }
 
     // 初始化玩家
     // Initialize players
@@ -97,7 +104,11 @@ void othelloGame::loadGame(std::string fileName, bool blackComputer,
         }
     }
     this->board.discsOnBoard = 64 - std::count(setup.begin(), setup.end(), 0);
-    this->board.positions.swap(setup);
+    // this->board.positions.swap(setup);
+    for(size_t i = 0;i<OTHELLO_BOARD_SIZE;i++)
+    {
+        this->board.positions[i] = setup[i];
+    }
 
     // Initialize players
     this->blackPlayer.color = 1;
@@ -200,10 +211,13 @@ void othelloGame::checkGameOver() {
     // 如果双方都放弃了落子
     if (this->board.passes[0] && this->board.passes[1]) {
         // 统计黑子和白子的数量
-        int blackCount = std::count(this->board.positions.begin(),
-                this->board.positions.end(), 1);
-        int whiteCount = std::count(this->board.positions.begin(),
-                this->board.positions.end(), -1);
+        // int blackCount = std::count(this->board.positions.begin(),
+        //         this->board.positions.end(), 1);
+        // int whiteCount = std::count(this->board.positions.begin(),
+        //         this->board.positions.end(), -1);
+
+        int blackCount = board_count(this->board.positions,1,64,1);
+        int whiteCount = board_count(this->board.positions,1,64,-1);
 
         // 显示棋盘
         this->board.displayBoard(1);

@@ -1,5 +1,5 @@
 #include "board.hpp"
-
+#include <cstring>
 // Constructor
 /**
  * @brief 构造函数
@@ -10,7 +10,8 @@
 othelloBoard::othelloBoard() {
     // 初始化棋盘，将棋盘上的每个位置初始化为0
     // positions是一个大小为64的数组，每个元素初始化为0
-    this->positions.resize(64, 0);
+    // this->positions.resize(64, 0);
+    memset(this->positions,0,64*sizeof(int));
     // positions数组初始化完毕
 }
 
@@ -67,12 +68,14 @@ void othelloBoard::displayBoard(int color) {
 
         // 在棋盘底部打印双方棋子数量
         if (i == 24) {
-            std::cout << "\t\tBlack: " << std::count(this->positions.begin(),
-                    this->positions.end(), 1); // 打印黑色棋子数量
+            // std::cout << "\t\tBlack: " << std::count(this->positions.begin(),
+            //         this->positions.end(), 1); // 打印黑色棋子数量
+            std::cout << "\t\tBlack: " << board_count(this->positions,1,64,1); // 打印黑色棋子数量
         }
         else if (i == 32) {
-            std::cout << "\t\tWhite: " << std::count(this->positions.begin(),
-                    this->positions.end(), -1); // 打印白色棋子数量
+            // std::cout << "\t\tWhite: " << std::count(this->positions.begin(),
+            //         this->positions.end(), -1); // 打印白色棋子数量
+            std::cout << "\t\tWhite: " << board_count(this->positions,1,64,-1); // 打印白色棋子数量
         }
 
         std::cout << std::endl; // 换行
@@ -298,3 +301,28 @@ void othelloBoard::index2coord(int index, int &colNum, int &rowNum) {
     // 计算行号
     rowNum = index / 8;
 }
+
+int board_count(int *p, size_t start, size_t end, int target)
+{
+    int count = 0;
+    for(size_t i = start-1;i<end;i++)
+    {
+        if(p[i] == target)
+            count++;
+    }
+
+    return count;
+}
+
+int board_accumulate(int *p, size_t start, size_t end, int init_value)
+{
+    int count = init_value;
+    for(size_t i = start-1;i<end;i++)
+    {
+        count+=p[i];
+    }
+
+    return count;
+}
+
+

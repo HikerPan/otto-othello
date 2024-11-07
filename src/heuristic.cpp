@@ -35,8 +35,9 @@ int othelloHeuristic::evaluate(othelloBoard &board, int color) {
 }
 
 int othelloHeuristic::utility(othelloBoard &board, int &color) {
-    int util = std::accumulate(board.positions.begin(),
-            board.positions.end(), 0);
+    // int util = std::accumulate(board.positions.begin(),
+    //         board.positions.end(), 0);
+    int util = board_accumulate(board.positions,1,64,0);
 
     if (color == 1) {
         return util; 
@@ -48,10 +49,13 @@ int othelloHeuristic::utility(othelloBoard &board, int &color) {
 
 // Relative disc difference between the two players
 int othelloHeuristic::discDifference(othelloBoard &board, int &color) {
-    int blackCount = std::count(board.positions.begin(),
-            board.positions.end(), 1);
-    int whiteCount = std::count(board.positions.begin(),
-            board.positions.end(), -1);
+    // int blackCount = std::count(board.positions.begin(),
+    //         board.positions.end(), 1);
+    // int whiteCount = std::count(board.positions.begin(),
+    //         board.positions.end(), -1);
+
+    int blackCount = board_count(board.positions,1,64,1);
+    int whiteCount = board_count(board.positions,1,64,-1);
 
     if (color == 1) {
         return 100 * (blackCount - whiteCount) / (blackCount + whiteCount);
@@ -262,6 +266,7 @@ int othelloHeuristic::parity(othelloBoard &board) {
     }
 }
 
+
 // Assigns a weight to every square on the board
 int othelloHeuristic::squareWeights(othelloBoard &board, int &color) {
     std::vector<int> weights = {
@@ -335,13 +340,21 @@ int othelloHeuristic::squareWeights(othelloBoard &board, int &color) {
         weights[62] = 0;
     }
 
+    int count = 0;
+    for(size_t i =0;i<OTHELLO_BOARD_SIZE;i++)
+    {
+        count = board.positions[i]*weights[i];
+    }
+
     if (color == 1) {
-        return std::inner_product(board.positions.begin(),
-                board.positions.end(), weights.begin(), 0);
+        // return std::inner_product(board.positions.begin(),
+        //         board.positions.end(), weights.begin(), 0);
+        return count;
     }
     else {
-        return -1*std::inner_product(board.positions.begin(),
-                board.positions.end(), weights.begin(), 0);
+        // return -1*std::inner_product(board.positions.begin(),
+        //         board.positions.end(), weights.begin(), 0);
+        return -1*count;
     }
 }
 

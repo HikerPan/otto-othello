@@ -8,12 +8,20 @@
 #include <tuple>
 #include <algorithm>
 
+#define OTHELLO_BOARD_SIZE      (64)
+// struct typedef{
+//         bool used;
+//         int pos;
+// }_POSITINS_T_;
+
 class othelloBoard {
     public:
         // positions specifies all pieces on the board. Squares on the
         // board are indexed from 0 to 63, left to right, top to bottom.
         // positions[i] is 1 for a black disc, -1 for a white disc
-        std::vector<int> positions;
+        // std::vector<int> positions;
+        int positions[OTHELLO_BOARD_SIZE];
+        
 
         int discsOnBoard = 4;
         float timeLimit = 0.0;
@@ -57,4 +65,6 @@ class othelloBoard {
         void index2coord(int index, int &colNum, int &rowNum);
 };
 
+int board_count(int *p, size_t start, size_t end, int target);
+int board_accumulate(int *p, size_t start, size_t end, int init_value);
 #endif // BOARD_HPP
