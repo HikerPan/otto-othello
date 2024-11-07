@@ -14,7 +14,6 @@ class othelloGame {
         othelloPlayer whitePlayer;
         // std::string moveHistory = "";
         char moveHistory[MAX_MOVE_HISTORY_LEN];
-        // char *moveHistory;
 
         int toMove = 1;
         bool gameOver = false;
