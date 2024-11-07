@@ -270,6 +270,10 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
     }
     // this->positions[square] = color;
 
+    printf("\n[updateBoard] position %d, color %d\n",square,color);
+
+    printf("[updateBoard] flippedDiscs:");
+
     // 遍历翻转的棋子列表
     for (auto disc : flippedDiscs) {
         // 将翻转的棋子位置设置为当前玩家颜色
@@ -277,8 +281,10 @@ void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
         if (pos_value) {
             *pos_value = color;
         }
+        printf("%d ",disc);
         // this->positions[disc] = color;
     }
+    printf("\n");
 }
 
 // void othelloBoard::updateBoard(int color, std::pair<int, std::list<int>> move) {
