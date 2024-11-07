@@ -36,8 +36,12 @@ std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
 
     // 将移动记录添加到历史记录中
     // moveHistory.append(std::to_string(moveChoice.first) + ",");
-    sprintf(moveHistory,"%d,",moveChoice.first);
-
+    char temp[8] = {0};
+    sprintf(temp,"%d,",moveChoice.first);
+    // int len = sprintf(moveHistory,"%d,",moveChoice.first);
+    strcat(moveHistory,temp);
+    // printf("\nmoveHistory len %d\n",len);
+    printf("moveHistory:%s\n",moveHistory);
     // 返回移动选择
     return moveChoice;
 }

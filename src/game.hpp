@@ -5,7 +5,7 @@
 #include "player.hpp"
 #include "board.hpp"
 
-#define MAX_MOVE_HISTORY_LEN    (2*OTHELLO_BOARD_SIZE)
+#define MAX_MOVE_HISTORY_LEN    (10*OTHELLO_BOARD_SIZE)
 
 class othelloGame {
     public:
@@ -14,6 +14,7 @@ class othelloGame {
         othelloPlayer whitePlayer;
         // std::string moveHistory = "";
         char moveHistory[MAX_MOVE_HISTORY_LEN];
+        // char *moveHistory;
 
         int toMove = 1;
         bool gameOver = false;
