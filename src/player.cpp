@@ -1,5 +1,6 @@
 #include "heuristic.hpp"
 #include "player.hpp"
+#include "moves_hashmap.h"
 
 // Driver for player's move, regardless of player
 /**
@@ -16,12 +17,13 @@
 // std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves,
 //         bool &pass, std::string &moveHistory) {
-std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
-        std::unordered_map<int, std::list<int>> &legalMoves,
+MOVES_PAIR_T *othelloPlayer::move(othelloBoard &board,
+        MoveHash *legalMoves,
         bool &pass, char *moveHistory) {
 
     // 初始化移动选择
-    std::pair<int, std::list<int>> moveChoice;
+    // std::pair<int, std::list<int>> moveChoice;
+    MOVES_PAIR_T *moveChoice;
 
     // 如果是电脑玩家
     if (this->computer) {
@@ -37,7 +39,8 @@ std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
     // 将移动记录添加到历史记录中
     // moveHistory.append(std::to_string(moveChoice.first) + ",");
     char temp[8] = {0};
-    sprintf(temp,"%d,",moveChoice.first);
+    // sprintf(temp,"%d,",moveChoice.first);
+    sprintf(temp,"%d,",moveChoice->position);
     // int len = sprintf(moveHistory,"%d,",moveChoice.first);
     strcat(moveHistory,temp);
     // printf("\nmoveHistory len %d\n",len);
@@ -56,12 +59,14 @@ std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
  * @param pass 是否选择跳过回合
  * @return std::pair<int, std::list<int>> 玩家选择的走法，第一个元素为走法的编号或坐标索引，第二个元素为对应的走法列表
  */
-std::pair<int, std::list<int>> othelloPlayer::humanMove(
-        std::unordered_map<int, std::list<int>> &legalMoves, bool &pass) {
+// std::pair<int, std::list<int>> othelloPlayer::humanMove(
+//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass) {
+MOVES_PAIR_T *othelloPlayer::humanMove(
+        MoveHash *legalMoves, bool &pass) {
     // 存储用户输入的字符串
     std::string str;
     // 存储用户选择的移动
-    std::pair<int, std::list<int>> move;
+    MOVES_PAIR_T *move = NULL;
     // 记录用户输入的移动编号
     int moveNum = 0;
     // 记录用户输入的坐标索引
@@ -70,7 +75,9 @@ std::pair<int, std::list<int>> othelloPlayer::humanMove(
     bool validInput = false;
 
     // 如果没有合法移动
-    if (legalMoves.empty()) {
+    // if (legalMoves.empty()) {
+    if (move_hash_empty(legalMoves)) {
+        
         // 输出没有合法移动的信息
         std::cout << "No legal moves!" << std::endl;
         // 提示用户输入任意非空字符串表示放弃
@@ -104,15 +111,21 @@ std::pair<int, std::list<int>> othelloPlayer::humanMove(
         iss >> moveNum;
 
         // 如果坐标索引有效且是合法移动
+        // if (coordIndex != -1
+        //         && legalMoves.find(coordIndex) != legalMoves.end()) {
         if (coordIndex != -1
-                && legalMoves.find(coordIndex) != legalMoves.end()) {
+                && find_move(legalMoves,coordIndex) != find_end(legalMoves)) {
+                    
             // 输出换行符
             std::cout << std::endl;
             // 返回用户选择的移动
-            return *legalMoves.find(coordIndex);
+            // return *legalMoves.find(coordIndex);
+            return find_move(legalMoves,coordIndex);
         }
         // 如果输入既不是坐标也不是有效编号
-        else if (!iss.eof() || moveNum > legalMoves.size() || moveNum < 1) {
+        // else if (!iss.eof() || moveNum > legalMoves.size() || moveNum < 1) {
+        else if (!iss.eof() || moveNum > size_moves(legalMoves) || moveNum < 1) {
+            
             // 提示用户输入无效，请重新输入
             std::cout << "\tInvalid input. Please try again.\n" << std::endl;
         }
@@ -129,16 +142,22 @@ std::pair<int, std::list<int>> othelloPlayer::humanMove(
 
     // 遍历合法移动列表
     int i = 0;
-    for (std::pair<int, std::list<int>> keyval : legalMoves) {
-        // 保存当前遍历到的移动
-        move = keyval;
-        // 递增计数器
-        i++;
-        // 如果计数器等于用户输入的编号
-        if (i == moveNum) {
-            // 跳出循环
-            break;
+    MOVES_PAIR_T *keyval = NULL;
+    MoveHash tmp = NULL;
+    HASH_ITER(hh, legalMoves, keyval, tmp){
+    // for (std::pair<int, std::list<int>> keyval : legalMoves) {
+        if(NULL != keyval){
+            // 保存当前遍历到的移动
+            move = keyval;
+            // 递增计数器
+            i++;
+            // 如果计数器等于用户输入的编号
+            if (i == moveNum) {
+                // 跳出循环
+                break;
+            }    
         }
+        
     }
 
     // 返回用户选择的移动
@@ -153,15 +172,24 @@ std::pair<int, std::list<int>> othelloPlayer::humanMove(
  * @param coord 坐标字符串，格式为'列号行号'，列号为大写或小写字母（A-H），行号为数字（1-8）
  * @return 索引值，如果坐标无效，则返回-1
  */
-int othelloPlayer::coord2index(std::string coord) {
+// int othelloPlayer::coord2index(std::string coord) {
+int othelloPlayer::coord2index(char *coord) {
+
+    if(NULL == coord)
+    {
+        printf("[coord2index] NULL == coord");
+        return -1;
+    }
     // 检查坐标字符串长度是否为2
-    if (coord.length() != 2) {
+    // if (coord.length() != 2) {
+    if (strlen(coord) != 2) {
         return -1;
     }
 
     int index = 0;
     // 根据坐标的第一个字符确定行索引
-    switch(coord.at(0)) {
+    // switch(coord.at(0)) {
+    switch(coord[0]) {
         case 'A':
         case 'a':
             // A或a代表第一行
@@ -208,7 +236,8 @@ int othelloPlayer::coord2index(std::string coord) {
     }
 
     // 根据坐标的第二个字符确定列索引
-    switch(coord.at(1)) {
+    // switch(coord.at(1)) {
+    switch(coord[1]) {
         case '1':
             // 1代表第一列
             index += 0;
@@ -264,40 +293,49 @@ int othelloPlayer::coord2index(std::string coord) {
 // std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
 //         std::string &moveHistory) {
-std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
-        std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
+// std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
+//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
+//         char *moveHistory) {
+MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
+        MoveHash *legalMoves, bool &pass,
         char *moveHistory) {
-    // 开始计时
+            
     std::chrono::time_point<std::chrono::system_clock> startTime
         = this->startTimer();
 
     // 初始化移动对象
-    std::pair<int, std::list<int>> move;
-    std::pair<int, std::list<int>> bestMove;
+    // std::pair<int, std::list<int>> move;
+    // std::pair<int, std::list<int>> bestMove;
+    MOVES_PAIR_T *move;
+    MOVES_PAIR_T *bestMove;
 
     // 查询开局数据库
     std::unordered_map<std::string, int>::iterator query
         = this->database.openingBook.find(moveHistory);
 
     // 如果没有合法移动
-    if (legalMoves.empty()) {
+    // if (legalMoves.empty()) {
+    if (move_hash_empty(legalMoves)) {
         std::cout << "No legal moves!" << std::endl;
         std::cout << "\tComputer passes.\n" << std::endl;
         pass = true;
         return bestMove;
     }
     // 如果只有一个合法移动
-    else if (legalMoves.size() == 1) {
+    // else if (legalMoves.size() == 1) {
+    else if (size_moves(legalMoves) == 1) {
         std::cout << "Only one legal move!" << std::endl;
         std::cout << "\tComputer takes only legal move." << std::endl;
-        bestMove = *legalMoves.begin();
+        // bestMove = *legalMoves.begin();
+        bestMove = find_begin(*legalMoves);
     }
     // 如果开局已知
     else if (query != this->database.openingBook.end()) {
         std::cout << "Known opening!" << std::endl;
         std::cout << "\tComputer takes next move from opening book."
             << std::endl;
-        bestMove = *legalMoves.find(query->second);
+        // bestMove = *legalMoves.find(query->second);
+        bestMove = find_move(*legalMoves,query->second);
     }
     // 其他情况
     else {
@@ -328,7 +366,8 @@ std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
                         board.timeLimit);
 
                 // 如果搜索被中止
-                if (move.first == -1) {
+                // if (move.first == -1) {
+                if (move->position == -1) {
                     std::cout << "\t\tSearch aborted." << std::endl;
                     break;
                 }
@@ -414,11 +453,14 @@ float othelloPlayer::stopTimer(
  * @param timeLimit 搜索的最大时间限制（秒）
  * @return 返回最佳走法，由位置坐标和可能的后续走法列表组成
  */
-std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
+// std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
+//         othelloBoard &board, int depthLimit,
+//         std::chrono::time_point<std::chrono::system_clock> startTime,
+//         float timeLimit) {
+MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
         othelloBoard &board, int depthLimit,
         std::chrono::time_point<std::chrono::system_clock> startTime,
         float timeLimit) {
-
     // 初始化根节点
     // Initialize root node
     this->nodeStack[0].isMaxNode = true;
@@ -426,14 +468,17 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
     this->nodeStack[0].beta = INT_MAX;
     this->nodeStack[0].score = INT_MIN;
     this->nodeStack[0].board = board;
-    this->nodeStack[0].moveIterator = this->nodeStack[0].board.moves.begin();
+    // this->nodeStack[0].moveIterator = this->nodeStack[0].board.moves.begin();
+    this->nodeStack[0].moveIterator = find_begin(this->nodeStack[0].board.moves);
     this->nodeStack[0].prevIterator = this->nodeStack[0].moveIterator;
-    this->nodeStack[0].lastMove = this->nodeStack[0].board.moves.end();
+    // this->nodeStack[0].lastMove = this->nodeStack[0].board.moves.end();
+    this->nodeStack[0].lastMove = find_end(this->nodeStack[0].board.move);
 
     int depth = 0;
     int leafScore = 0;
-    std::unordered_map<int, std::list<int>>::iterator bestMove =
-        this->nodeStack[0].board.moves.begin();
+    // std::unordered_map<int, std::list<int>>::iterator bestMove =
+    //     this->nodeStack[0].board.moves.begin();
+    MoveHash bestMove = find_begin(this->nodeStack[0].board.moves);
 
     // 当尚未评估根节点的所有子节点时
     // While we have not evaluated all the root's children
@@ -574,11 +619,12 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
                 }
                 */
 
-                this->nodeStack[depth].moveIterator =
-                    this->nodeStack[depth].board.moves.begin();
-                this->nodeStack[depth].prevIterator =
-                    this->nodeStack[depth].moveIterator;
-                this->nodeStack[depth].lastMove = this->nodeStack[depth].board.moves.end();
+                // this->nodeStack[depth].moveIterator =
+                //     this->nodeStack[depth].board.moves.begin();
+                this->nodeStack[depth].moveIterator = find_begin(this->nodeStack[depth].board.moves);
+                this->nodeStack[depth].prevIterator =this->nodeStack[depth].moveIterator;
+                // this->nodeStack[depth].lastMove = this->nodeStack[depth].board.moves.end();
+                this->nodeStack[depth].lastMove = find_end(this->nodeStack[depth].board.moves);
             }
             else {
                 // 节点为叶节点：评估启发式函数并更新值
@@ -613,8 +659,14 @@ std::pair<int, std::list<int>> othelloPlayer::depthLimitedAlphaBeta(
         // 如果时间即将耗尽，则失败
         // If we are almost out of time, failure
         if (this->stopTimer(startTime) > 0.998*timeLimit) {
-            std::pair<int, std::list<int>> move;
-            move.first = -1;
+            MOVES_PAIR_T *move = NULL;
+            move = (MOVES_PAIR_T *)malloc(MOVES_PAIR_T);
+            if(NULL == move)
+            {
+                printf("malloc fail\n");
+                return NULL;
+            }
+            move->position = -1;
             return move;
         }
     }

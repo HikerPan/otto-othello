@@ -172,7 +172,8 @@ void othelloGame::loadGame(std::string fileName, bool blackComputer,
  */
 void othelloGame::move(int color) {
     // 定义一个pair类型变量move，用于存储移动结果
-    std::pair<int, std::list<int>> move;
+    // std::pair<int, std::list<int>> move;
+    MOVES_PAIR_T *move = NULL;
 
     // 判断当前轮到哪方玩家下棋
     if (color == 1) {

@@ -7,6 +7,7 @@
 #include <list>
 #include <tuple>
 #include <algorithm>
+#include "moves_hashmap.h"
 
 #define OTHELLO_BOARD_SIZE      (64)
 // struct typedef{
@@ -33,7 +34,8 @@ class othelloBoard {
         // moves is a hash table specifying all possible moves from the
         // current board position. Possible moves are keys, and a list of
         // all pieces to be flipped are values.
-        std::unordered_map<int, std::list<int>> moves;
+        // std::unordered_map<int, std::list<int>> moves;
+        MoveHash *moves;
 
         // Constructor
         othelloBoard();
@@ -46,17 +48,21 @@ class othelloBoard {
 
         // Finds all legal moves, writing to a reference to a hash table with
         // legal moves as keys, and a list of all discs to be flipped as values.
-        void findLegalMoves(int color,
-                std::unordered_map<int, std::list<int>> *pMoves);
+        // void findLegalMoves(int color,
+        //         std::unordered_map<int, std::list<int>> *pMoves);
+        void findLegalMoves(int color, MoveHash *pMoves);
 
         // Helper function to find a legal move given a disc, its color and a direction.
         // Writes the legal move and a list of all discs to be flipped as a pair to the
         // reference to a hash table.
-        void findLegalMoveInDirection(int &disc, int &color, int direction,
-                std::unordered_map<int, std::list<int>> *pMoves);
+        // void findLegalMoveInDirection(int &disc, int &color, int direction,
+        //         std::unordered_map<int, std::list<int>> *pMoves);
+        void findLegalMoveInDirection(int &disc, int &color, int direction, MoveHash *pMoves);
 
         // Update board after a move
-        void updateBoard(int color, std::pair<int, std::list<int>> move);
+        // void updateBoard(int color, std::pair<int, std::list<int>> move);
+        void updateBoard(int color, MOVES_PAIR_T * move);
+        
 
         bool terminalState();
 

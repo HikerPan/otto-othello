@@ -10,6 +10,7 @@
 #include <cstring>
 #include "database.hpp"
 #include "heuristic.hpp"
+#include "moves_hashmap.h"
 
 class othelloPlayer {
     public:
@@ -20,8 +21,8 @@ class othelloPlayer {
         // std::pair<int, std::list<int>> move(othelloBoard &board,
         //         std::unordered_map<int, std::list<int>> &legalMoves,
         //         bool &pass, std::string &moveHistory);
-        std::pair<int, std::list<int>> move(othelloBoard &board,
-                        std::unordered_map<int, std::list<int>> &legalMoves,
+        MOVES_PAIR_T *move(othelloBoard &board,
+                        MoveHash *legalMoves,
                         bool &pass, char *moveHistory);
 
     private:
@@ -31,9 +32,12 @@ class othelloPlayer {
             int beta;
             int score;
             othelloBoard board;
-            std::unordered_map<int, std::list<int>>::iterator prevIterator;
-            std::unordered_map<int, std::list<int>>::iterator moveIterator;
-            std::unordered_map<int, std::list<int>>::iterator lastMove;
+        //     std::unordered_map<int, std::list<int>>::iterator prevIterator;
+        //     std::unordered_map<int, std::list<int>>::iterator moveIterator;
+        //     std::unordered_map<int, std::list<int>>::iterator lastMove;
+            MOVES_PAIR_T *prevIterator;
+            MOVES_PAIR_T *moveIterator;
+            MOVES_PAIR_T *lastMove;
         };
 
         std::array<node, 64> nodeStack = {};
@@ -44,16 +48,17 @@ class othelloPlayer {
         othelloDatabase database;
 
         // Prompts user for next move
-        std::pair<int, std::list<int>> humanMove(
-                std::unordered_map<int, std::list<int>> &legalMoves, bool &pass);
+        // std::pair<int, std::list<int>> humanMove(
+        //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass);
+        MOVES_PAIR_T *humanMove(MoveHash *legalMoves, bool &pass);
 
         int coord2index(std::string coord);
 
         // Driver for the AI algorithm
         // std::pair<int, std::list<int>> computerMove(othelloBoard &board,
         //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, std::string &moveHistory);
-        std::pair<int, std::list<int>> computerMove(othelloBoard &board,
-                std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, char *moveHistory);
+        MOVES_PAIR_T *computerMove(othelloBoard &board,
+                MoveHash *legalMoves, bool &pass, char *moveHistory);
 
         // Returns time point
         std::chrono::time_point<std::chrono::system_clock> startTimer();
@@ -65,7 +70,7 @@ class othelloPlayer {
         // Performs depth-limited minimax search with alpha-beta pruning
         // Implemented using a stack to avoid recursion overhead
         // Returns move for square -1 if time runs out
-        std::pair<int, std::list<int>> depthLimitedAlphaBeta(
+        MOVES_PAIR_T *depthLimitedAlphaBeta(
                 othelloBoard &theBoard, int depthLimit,
                 std::chrono::time_point<std::chrono::system_clock> startTime,
                 float timeLimit);
