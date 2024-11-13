@@ -51,13 +51,15 @@ void othelloBoard::displayBoard(int color) {
                 std::cout << "\033[48;5;34m\033[38;5;15m\u2022 \033[0m"; // 打印白色棋子后跟绿色空格
             }
             // else if (this->moves.find(j) != this->moves.end() && color == 1) {
-            else if (find_move(this->moves,j) != find_end(this->moves) && color == 1) {
+            // else if (((NULL != find_move(this->moves,j))&&find_move(this->moves,j) != find_end(this->moves)) && color == 1) {
+            else if (NULL != find_move(this->moves,j) && color == 1) {
                 // 打印黑色可落子标记
                 // Black x followed by green space
                 std::cout << "\033[48;5;34m\033[38;5;232m\u2613 \033[0m"; // 打印黑色X后跟绿色空格
             } 
             // else if (this->moves.find(j) != this->moves.end() && color == -1) {
-            else if (find_move(this->moves,j) != find_end(this->moves) && color == -1) {
+            // else if (((NULL != find_move(this->moves,j))&&find_move(this->moves,j) != find_end(this->moves)) && color == -1) {
+            else if (NULL != find_move(this->moves,j) && color == -1) {
                 // 打印白色可落子标记
                 // White x followed by green space
                 // std::cout << "\033[48;5;34m\033[38;5;256m\u2613 \033[0m"; // 打印白色X后跟绿色空格

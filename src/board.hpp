@@ -61,7 +61,7 @@ class othelloBoard {
 
         // Update board after a move
         // void updateBoard(int color, std::pair<int, std::list<int>> move);
-        void updateBoard(int color, MovePair_t * move);
+        void updateBoard(int color, MovePair_t *move);
         
 
         bool terminalState();

@@ -158,7 +158,7 @@ void delete_move(MoveHash_t *moves, int position) {
 
         // 遍历并释放链表中的每个节点
         LL_FOREACH_SAFE(moves_pair->flip_list, node, tmp) {
-            free(node);  // 使用 free 释放链表节点
+            // free(node);  // 使用 free 释放链表节点
         }
 
         // 从哈希表中删除该 Move
