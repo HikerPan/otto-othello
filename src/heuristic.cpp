@@ -1,4 +1,5 @@
 #include "heuristic.hpp"
+#include "moves_hashmap.h"
 // Heuristic is from the perspective that the calling player is the maximizing
 // player, regardless of the player's color
 

@@ -4,6 +4,10 @@
 #include "uthash.h"     // 引入 uthash.h
 #include "utlist.h"     // 引入 utlist.h
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // 定义链表节点，用于替代 std::list<int>
 typedef struct _IntListNode_ {
     int flip_position;      // 翻转位置
@@ -39,5 +43,9 @@ int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
 void insert_moves(MoveHash_t **hashTable, MovePair_t *moves_node);
 int size_moves(MoveHash_t *hashTable);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // MOVES_HASHMAP_H

@@ -20,8 +20,7 @@ class othelloHeuristic {
         int potentialMobility(othelloBoard &board, int color);
         int playerPotentialMobility(othelloBoard &board, int color);
         int stability(othelloBoard &board, int color);
-        void stableDiscsFromCorner(othelloBoard &board,
-                int corner, int color);
+        void stableDiscsFromCorner(othelloBoard &board,int corner, int color);
         int parity(othelloBoard &board);
         int squareWeights(othelloBoard &board, int &color);
         int corners(othelloBoard &board, int &color);
