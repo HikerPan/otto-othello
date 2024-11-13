@@ -31,7 +31,7 @@ int main() {
     // 如果轮到电脑下棋，先执行电脑下棋
     if (game.toMove == -1) {
         // 寻找合法移动
-        game.board.findLegalMoves(-1, game.board.moves);
+        game.board.findLegalMoves(-1, &game.board.moves);
         // 显示棋盘
         game.board.displayBoard(-1);
         // 显示合法移动
@@ -47,7 +47,7 @@ int main() {
     //while (!game.passes[0] && !game.passes[1]) {
     while (!game.gameOver) {
         // 寻找黑方合法移动
-        game.board.findLegalMoves(1, game.board.moves);
+        game.board.findLegalMoves(1, &game.board.moves);
         // 显示棋盘
         game.board.displayBoard(1);
         // 显示合法移动
@@ -63,7 +63,7 @@ int main() {
         }
 
         // 寻找白方合法移动
-        game.board.findLegalMoves(-1, game.board.moves);
+        game.board.findLegalMoves(-1, &game.board.moves);
         // 显示棋盘
         game.board.displayBoard(-1);
         // 显示合法移动

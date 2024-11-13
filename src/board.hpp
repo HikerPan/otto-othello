@@ -50,14 +50,14 @@ class othelloBoard {
         // legal moves as keys, and a list of all discs to be flipped as values.
         // void findLegalMoves(int color,
         //         std::unordered_map<int, std::list<int>> *pMoves);
-        void findLegalMoves(int color, MoveHash_t *pMoves);
+        void findLegalMoves(int color, MoveHash_t **pMoves);
 
         // Helper function to find a legal move given a disc, its color and a direction.
         // Writes the legal move and a list of all discs to be flipped as a pair to the
         // reference to a hash table.
         // void findLegalMoveInDirection(int &disc, int &color, int direction,
         //         std::unordered_map<int, std::list<int>> *pMoves);
-        void findLegalMoveInDirection(int &disc, int &color, int direction, MoveHash_t *pMoves);
+        void findLegalMoveInDirection(int &disc, int &color, int direction, MoveHash_t **pMoves);
 
         // Update board after a move
         // void updateBoard(int color, std::pair<int, std::list<int>> move);

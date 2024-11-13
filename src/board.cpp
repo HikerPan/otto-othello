@@ -149,8 +149,7 @@ void othelloBoard::displayLegalMoves() {
  */
 // void othelloBoard::findLegalMoves(int color,
 //         std::unordered_map<int, std::list<int>> *pMoves) {
-void othelloBoard::findLegalMoves(int color,
-        MoveHash_t *pMoves) {
+void othelloBoard::findLegalMoves(int color, MoveHash_t **pMoves) {
             
     // 清除上一手棋的合法走法
     // Clear legal moves from previous ply
@@ -194,7 +193,7 @@ void othelloBoard::findLegalMoves(int color,
  */
 // void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,
 //         std::unordered_map<int, std::list<int>> *pMoves) {
-void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,MoveHash_t *pMoves) {
+void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,MoveHash_t **pMoves) {
     // 初始化一个合法的移动和翻转的棋子列表
     // std::pair<int, std::list<int>> legalMove;
     MovePair_t *legalMove = NULL;
@@ -206,7 +205,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
     int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
 
     // 沿给定方向遍历棋格
-        // 防止棋盘边缘的棋格越界
+    // 防止棋盘边缘的棋格越界
     for (int i = disc + direction; i < 64 && i > -1; i += direction) {
         // Guard against wrapping around the board
         index2coord(i-direction, col1, row1);
@@ -242,11 +241,11 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
         // else if (currentSquare == 0 && !flippedDiscs.empty()) {
         else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {
             // std::unordered_map<int, std::list<int>>::iterator it = pMoves->find(i);
-            MovePair_t *it = find_move(pMoves, i);
+            MovePair_t *it = find_move(*pMoves, i);
 
             // 如果该移动已经存在，则合并翻转的棋子列表
             // if (it != pMoves->end()) {
-                if (NULL != it && it != find_end(pMoves)) {
+                if (NULL != it && it != find_end(*pMoves)) {
                 // it->second.merge(flippedDiscs);
                     merge_flip_lists(&it->flip_list,flippedDiscs);
             }
@@ -266,7 +265,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
                 legalMove->position = i;
                 legalMove->flip_list = flippedDiscs;
                 // insert(pMoves,i,legalMove);
-                insert_moves(&pMoves,legalMove);
+                insert_moves(pMoves,legalMove);
                 
             }
 

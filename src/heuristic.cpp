@@ -68,13 +68,13 @@ int othelloHeuristic::discDifference(othelloBoard &board, int &color) {
 
 // Number of possible moves
 int othelloHeuristic::mobility(othelloBoard &board, int &color) {
-    board.findLegalMoves(1, pMoves);
+    board.findLegalMoves(1, &pMoves);
     // int blackMoves = pMoves.size();
     // pMoves.clear();
     int blackMoves = size_moves(pMoves);
     clear_moves(pMoves);
 
-    board.findLegalMoves(-1, pMoves);
+    board.findLegalMoves(-1, &pMoves);
     // int whiteMoves = pMoves.size();
     // pMoves.clear();
     int whiteMoves = size_moves(pMoves);

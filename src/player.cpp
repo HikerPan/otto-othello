@@ -608,7 +608,7 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
                 this->nodeStack[depth].beta = this->nodeStack[depth-1].beta;
                 this->nodeStack[depth].board.findLegalMoves(
                         (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
-                        this->nodeStack[depth].board.moves);
+                        &this->nodeStack[depth].board.moves);
 
                 /*
                 std::unordered_map<int, std::list<int>> foo1
