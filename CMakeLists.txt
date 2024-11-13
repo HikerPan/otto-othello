@@ -5,12 +5,23 @@ project(OttoOthello)
 # 设置 C++ 标准
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_C_STANDARD 11)
 
 # 包含项目头文件目录
 include_directories(src)
 
 # 查找 src 目录下的所有 .cpp 文件并存储在 SOURCES 变量中
-file(GLOB SOURCES "src/*.cpp")
+# file(GLOB SOURCES "src/*.cpp")
+# 指定源文件
+set(SOURCES
+    src/board.cpp
+    src/database.cpp
+    src/game.cpp
+    src/heuristic.cpp
+    src/othello.cpp
+    src/player.cpp
+    src/moves_hashmap.c
+)
 
 # 创建可执行文件 OttoOthello 并链接源文件
 add_executable(OttoOthello ${SOURCES})
