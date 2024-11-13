@@ -21,8 +21,8 @@ class othelloPlayer {
         // std::pair<int, std::list<int>> move(othelloBoard &board,
         //         std::unordered_map<int, std::list<int>> &legalMoves,
         //         bool &pass, std::string &moveHistory);
-        MOVES_PAIR_T *move(othelloBoard &board,
-                        MoveHash *legalMoves,
+        MovePair_t *move(othelloBoard &board,
+                        MoveHash_t *legalMoves,
                         bool &pass, char *moveHistory);
 
     private:
@@ -35,9 +35,9 @@ class othelloPlayer {
         //     std::unordered_map<int, std::list<int>>::iterator prevIterator;
         //     std::unordered_map<int, std::list<int>>::iterator moveIterator;
         //     std::unordered_map<int, std::list<int>>::iterator lastMove;
-            MOVES_PAIR_T *prevIterator;
-            MOVES_PAIR_T *moveIterator;
-            MOVES_PAIR_T *lastMove;
+            MovePair_t *prevIterator;
+            MovePair_t *moveIterator;
+            MovePair_t *lastMove;
         };
 
         std::array<node, 64> nodeStack = {};
@@ -50,15 +50,15 @@ class othelloPlayer {
         // Prompts user for next move
         // std::pair<int, std::list<int>> humanMove(
         //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass);
-        MOVES_PAIR_T *humanMove(MoveHash *legalMoves, bool &pass);
+        MovePair_t *humanMove(MoveHash_t *legalMoves, bool &pass);
 
-        int coord2index(std::string coord);
+        int coord2index(char *coord);
 
         // Driver for the AI algorithm
         // std::pair<int, std::list<int>> computerMove(othelloBoard &board,
         //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass, std::string &moveHistory);
-        MOVES_PAIR_T *computerMove(othelloBoard &board,
-                MoveHash *legalMoves, bool &pass, char *moveHistory);
+        MovePair_t *computerMove(othelloBoard &board,
+                MoveHash_t *legalMoves, bool &pass, char *moveHistory);
 
         // Returns time point
         std::chrono::time_point<std::chrono::system_clock> startTimer();
@@ -70,7 +70,7 @@ class othelloPlayer {
         // Performs depth-limited minimax search with alpha-beta pruning
         // Implemented using a stack to avoid recursion overhead
         // Returns move for square -1 if time runs out
-        MOVES_PAIR_T *depthLimitedAlphaBeta(
+        MovePair_t *depthLimitedAlphaBeta(
                 othelloBoard &theBoard, int depthLimit,
                 std::chrono::time_point<std::chrono::system_clock> startTime,
                 float timeLimit);

@@ -12,7 +12,7 @@ class othelloHeuristic {
     private:
         std::unordered_set<int> stableDiscs;
         // std::unordered_map<int, std::list<int>> pMoves;
-        MoveHash pMoves;
+        MoveHash_t *pMoves;
 
         int utility(othelloBoard &board, int &color);
         int discDifference(othelloBoard &board, int &color);

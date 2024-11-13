@@ -17,13 +17,13 @@
 // std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves,
 //         bool &pass, std::string &moveHistory) {
-MOVES_PAIR_T *othelloPlayer::move(othelloBoard &board,
-        MoveHash *legalMoves,
+MovePair_t *othelloPlayer::move(othelloBoard &board,
+        MoveHash_t *legalMoves,
         bool &pass, char *moveHistory) {
 
     // 初始化移动选择
     // std::pair<int, std::list<int>> moveChoice;
-    MOVES_PAIR_T *moveChoice;
+    MovePair_t *moveChoice;
 
     // 如果是电脑玩家
     if (this->computer) {
@@ -61,12 +61,12 @@ MOVES_PAIR_T *othelloPlayer::move(othelloBoard &board,
  */
 // std::pair<int, std::list<int>> othelloPlayer::humanMove(
 //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass) {
-MOVES_PAIR_T *othelloPlayer::humanMove(
-        MoveHash *legalMoves, bool &pass) {
+MovePair_t *othelloPlayer::humanMove(
+        MoveHash_t *legalMoves, bool &pass) {
     // 存储用户输入的字符串
-    std::string str;
+    char str[20];
     // 存储用户选择的移动
-    MOVES_PAIR_T *move = NULL;
+    MovePair_t *move = NULL;
     // 记录用户输入的移动编号
     int moveNum = 0;
     // 记录用户输入的坐标索引
@@ -83,9 +83,14 @@ MOVES_PAIR_T *othelloPlayer::humanMove(
         // 提示用户输入任意非空字符串表示放弃
         std::cout << "\tEnter any non-empty string to pass: ";
         // 读取用户输入的字符串
-        std::cin >> str;
+        // std::cin >> str;
         // 清除输入缓冲区
-        while (std::cin.get() != '\n');          // clear buffer
+        // while (std::cin.get() != '\n');          // clear buffer
+        scanf("%19s", str); // 注意使用 %99s 限制输入长度，以防止缓冲区溢出
+
+        // 清除输入缓冲区
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF); // 清除输入缓冲区中的剩余字符
         // 输出换行符
         std::cout << std::endl;
         // 设置pass为true表示用户选择放弃
@@ -98,11 +103,16 @@ MOVES_PAIR_T *othelloPlayer::humanMove(
     do {
         // 提示用户选择移动编号或坐标
         std::cout << "\tSelect move number/square coordinate: ";
-        // 读取用户输入的字符串
-        std::cin >> str;
-        // 清除输入缓冲区
-        while (std::cin.get() != '\n');          // clear buffer
+        // // 读取用户输入的字符串
+        // std::cin >> str;
+        
+        // // 清除输入缓冲区
+        // while (std::cin.get() != '\n');          // clear buffer
+        scanf("%19s", str); // 注意使用 %99s 限制输入长度，以防止缓冲区溢出
 
+        // 清除输入缓冲区
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF); // 清除输入缓冲区中的剩余字符
         // 将输入的字符串转换为坐标索引
         coordIndex = coord2index(str);
         // 创建输入字符串流
@@ -142,13 +152,13 @@ MOVES_PAIR_T *othelloPlayer::humanMove(
 
     // 遍历合法移动列表
     int i = 0;
-    MOVES_PAIR_T *keyval = NULL;
-    MoveHash tmp = NULL;
+    MoveHash_t *keyval = NULL;
+    MoveHash_t *tmp = NULL;
     HASH_ITER(hh, legalMoves, keyval, tmp){
     // for (std::pair<int, std::list<int>> keyval : legalMoves) {
         if(NULL != keyval){
             // 保存当前遍历到的移动
-            move = keyval;
+            move = &keyval->moves_pair;
             // 递增计数器
             i++;
             // 如果计数器等于用户输入的编号
@@ -296,8 +306,8 @@ int othelloPlayer::coord2index(char *coord) {
 // std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
 //         char *moveHistory) {
-MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
-        MoveHash *legalMoves, bool &pass,
+MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
+        MoveHash_t *legalMoves, bool &pass,
         char *moveHistory) {
             
     std::chrono::time_point<std::chrono::system_clock> startTime
@@ -306,8 +316,8 @@ MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
     // 初始化移动对象
     // std::pair<int, std::list<int>> move;
     // std::pair<int, std::list<int>> bestMove;
-    MOVES_PAIR_T *move;
-    MOVES_PAIR_T *bestMove;
+    MovePair_t *move;
+    MovePair_t *bestMove;
 
     // 查询开局数据库
     std::unordered_map<std::string, int>::iterator query
@@ -327,7 +337,7 @@ MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
         std::cout << "Only one legal move!" << std::endl;
         std::cout << "\tComputer takes only legal move." << std::endl;
         // bestMove = *legalMoves.begin();
-        bestMove = find_begin(*legalMoves);
+        bestMove = find_begin(legalMoves);
     }
     // 如果开局已知
     else if (query != this->database.openingBook.end()) {
@@ -335,7 +345,7 @@ MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
         std::cout << "\tComputer takes next move from opening book."
             << std::endl;
         // bestMove = *legalMoves.find(query->second);
-        bestMove = find_move(*legalMoves,query->second);
+        bestMove = find_move(legalMoves,query->second);
     }
     // 其他情况
     else {
@@ -393,7 +403,7 @@ MOVES_PAIR_T *othelloPlayer::computerMove(othelloBoard &board,
     int rowNum = 0, colNum = 0;
     std::string colCoord = "ABCDEFGH";
     std::string rowCoord = "12345678";
-    board.index2coord(bestMove.first, colNum, rowNum);
+    board.index2coord(bestMove->position, colNum, rowNum);
     std::cout << "\tComputer takes: " << colCoord[colNum] << rowCoord[rowNum]
         << "\n" << std::endl;
 
@@ -457,7 +467,7 @@ float othelloPlayer::stopTimer(
 //         othelloBoard &board, int depthLimit,
 //         std::chrono::time_point<std::chrono::system_clock> startTime,
 //         float timeLimit) {
-MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
+MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
         othelloBoard &board, int depthLimit,
         std::chrono::time_point<std::chrono::system_clock> startTime,
         float timeLimit) {
@@ -472,13 +482,13 @@ MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
     this->nodeStack[0].moveIterator = find_begin(this->nodeStack[0].board.moves);
     this->nodeStack[0].prevIterator = this->nodeStack[0].moveIterator;
     // this->nodeStack[0].lastMove = this->nodeStack[0].board.moves.end();
-    this->nodeStack[0].lastMove = find_end(this->nodeStack[0].board.move);
+    this->nodeStack[0].lastMove = find_end(this->nodeStack[0].board.moves);
 
     int depth = 0;
     int leafScore = 0;
     // std::unordered_map<int, std::list<int>>::iterator bestMove =
     //     this->nodeStack[0].board.moves.begin();
-    MoveHash bestMove = find_begin(this->nodeStack[0].board.moves);
+    MovePair_t *bestMove = find_begin(this->nodeStack[0].board.moves);
 
     // 当尚未评估根节点的所有子节点时
     // While we have not evaluated all the root's children
@@ -580,7 +590,7 @@ MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
             this->nodeStack[depth+1].board = this->nodeStack[depth].board;
             this->nodeStack[depth+1].board.updateBoard(
                     (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
-                    *this->nodeStack[depth].moveIterator);
+                    this->nodeStack[depth].moveIterator);
             this->nodeStack[depth].prevIterator = this->nodeStack[depth].moveIterator;
             this->nodeStack[depth].moveIterator++;
 
@@ -598,7 +608,7 @@ MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
                 this->nodeStack[depth].beta = this->nodeStack[depth-1].beta;
                 this->nodeStack[depth].board.findLegalMoves(
                         (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
-                        &this->nodeStack[depth].board.moves);
+                        this->nodeStack[depth].board.moves);
 
                 /*
                 std::unordered_map<int, std::list<int>> foo1
@@ -659,8 +669,8 @@ MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
         // 如果时间即将耗尽，则失败
         // If we are almost out of time, failure
         if (this->stopTimer(startTime) > 0.998*timeLimit) {
-            MOVES_PAIR_T *move = NULL;
-            move = (MOVES_PAIR_T *)malloc(MOVES_PAIR_T);
+            MovePair_t *move = NULL;
+            move = (MovePair_t *)malloc(sizeof(MovePair_t));
             if(NULL == move)
             {
                 printf("malloc fail\n");
@@ -671,5 +681,5 @@ MOVES_PAIR_T *othelloPlayer::depthLimitedAlphaBeta(
         }
     }
 
-    return *bestMove;
+    return bestMove;
 }

@@ -101,16 +101,16 @@ void othelloBoard::displayLegalMoves() {
     std::string colCoord = "ABCDEFGH";
     std::string rowCoord = "12345678";
 
-    MoveHash *keyval = NULL;
+    MoveHash_t *keyval = NULL;
 
     int colNum = 0, rowNum = 0; // 列和行的索引变量
     int moveNum = 1; // 合法移动的编号
     // std::list<int> flippedDiscs; // 记录翻转的棋子
-    IntListNode *flippedDiscs = NULL;
+    IntListNode_t *flippedDiscs = NULL;
 
     std::cout << "Legal moves:" << std::endl;
 
-    MoveHash *tmp = NULL;
+    MoveHash_t *tmp = NULL;
     // 遍历moves中的所有移动
     // for (auto keyval : this->moves) {
     HASH_ITER(hh, this->moves, keyval, tmp) {
@@ -119,15 +119,15 @@ void othelloBoard::displayLegalMoves() {
         std::cout << "\t" << moveNum++ << "\t" << colCoord[colNum] << rowCoord[rowNum];
 
         // 获取当前移动翻转的棋子列表
-        flippedDiscs = keyval->flip_list;
+        flippedDiscs = keyval->moves_pair.flip_list;
         std::cout << " will flip: ";
 
         // 遍历翻转的棋子列表
         // for (int disc : flippedDiscs) {
-        IntListNode *node;
+        IntListNode_t *node;
         LL_FOREACH(flippedDiscs, node) {
             // 将索引转换为坐标
-            index2coord(node->value, colNum, rowNum);
+            index2coord(node->flip_position, colNum, rowNum);
             std::cout << colCoord[colNum] << rowCoord[rowNum] << " ";
         }
 
@@ -150,7 +150,7 @@ void othelloBoard::displayLegalMoves() {
 // void othelloBoard::findLegalMoves(int color,
 //         std::unordered_map<int, std::list<int>> *pMoves) {
 void othelloBoard::findLegalMoves(int color,
-        MoveHash *pMoves) {
+        MoveHash_t *pMoves) {
             
     // 清除上一手棋的合法走法
     // Clear legal moves from previous ply
@@ -194,12 +194,12 @@ void othelloBoard::findLegalMoves(int color,
  */
 // void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,
 //         std::unordered_map<int, std::list<int>> *pMoves) {
-void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,MoveHash *pMoves) {
+void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction,MoveHash_t *pMoves) {
     // 初始化一个合法的移动和翻转的棋子列表
     // std::pair<int, std::list<int>> legalMove;
-    MOVES_PAIR_T *legalMove = NULL;
+    MovePair_t *legalMove = NULL;
     // std::list<int> flippedDiscs;
-    IntListNode *flippedDiscs = NULL;
+    IntListNode_t *flippedDiscs = NULL;
     // 当前棋格位置初始化为0
     int currentSquare = 0;
     // 用于转换棋格索引到行列的临时变量
@@ -242,7 +242,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
         // else if (currentSquare == 0 && !flippedDiscs.empty()) {
         else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {
             // std::unordered_map<int, std::list<int>>::iterator it = pMoves->find(i);
-            MoveHash *it = find_move(pMoves, i);
+            MovePair_t *it = find_move(pMoves, i);
 
             // 如果该移动已经存在，则合并翻转的棋子列表
             // if (it != pMoves->end()) {
@@ -256,7 +256,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
                 // legalMove.second = flippedDiscs;
                 // pMoves->insert(legalMove);
 
-                legalMove = (MOVES_PAIR_T *)malloc(sizeof(MOVES_PAIR_T));
+                legalMove = (MovePair_t *)malloc(sizeof(MovePair_t));
                 if(NULL == legalMove)
                 {
                     printf("malloc failed\n");
@@ -266,7 +266,7 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
                 legalMove->position = i;
                 legalMove->flip_list = flippedDiscs;
                 // insert(pMoves,i,legalMove);
-                insert_moves(it,legalMove);
+                insert_moves(&pMoves,legalMove);
                 
             }
 
@@ -288,24 +288,24 @@ void othelloBoard::findLegalMoveInDirection(int &disc, int &color, int direction
  *             - move.second 表示翻转的棋子列表
  */
 // void updateBoard(int color, std::pair<int, std::list<int>> move)
-void othelloBoard::updateBoard(int color, MOVES_PAIR_T *move) {
+void othelloBoard::updateBoard(int color, MovePair_t *move) {
     // 获取移动的位置
     // int square = move.first;
     // 获取翻转的棋子列表
     // std::list<int> flippedDiscs = move.second;
     int square = move->position;
-    IntListNode *flippedDiscs = move->flip_list;
+    IntListNode_t *flippedDiscs = move->flip_list;
 
     // 将移动位置设置为当前玩家颜色
     this->positions[square] = color;
 
     // 遍历翻转的棋子列表
     // for (auto disc : flippedDiscs) {
-    IntListNode *disc = NULL;
+    IntListNode_t *disc = NULL;
     LL_FOREACH(flippedDiscs,disc);
     if(disc != NULL){
         // 将翻转的棋子位置设置为当前玩家颜色
-        this->positions[disc->value] = color;
+        this->positions[disc->flip_position] = color;
     }
 }
 
