@@ -166,7 +166,7 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
             list_push_front(&flippedDiscs, i);
             continue;
         } else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {    //遇到空位，且翻转列表不为空
-            MovePair_t *it = find_move(*pMoves, i);
+            MovePair_t *it = find_move(pMoves, i);
 
             // if (it != NULL && it != find_end(pMoves)) {
             if (it != NULL) {

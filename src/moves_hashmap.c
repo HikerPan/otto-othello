@@ -226,7 +226,7 @@ int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list) {
 
 
 
-void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
+void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node) {
     // MovePair_t *entry = NULL;
     MovePair_t *findNode = NULL;
 
