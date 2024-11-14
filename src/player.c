@@ -407,119 +407,6 @@ int othelloPlayer_coord2index(char *coord) {
  * @param moveHistory 走法历史记录
  * @return 返回电脑走法的行列索引对
  */
-// std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
-//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
-//         std::string &moveHistory) {
-// std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
-//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
-//         char *moveHistory) {
-// MovePair_t *othelloPlayer::computerMove(othelloBoard *board,
-//         MoveHash_t *legalMoves, bool pass,
-//         char *moveHistory) {
-            
-//     std::chrono::time_point<std::chrono::system_clock> startTime
-//         = this->startTimer();
-
-//     // 初始化移动对象
-//     // std::pair<int, std::list<int>> move;
-//     // std::pair<int, std::list<int>> bestMove;
-//     MovePair_t *move = NULL;
-//     MovePair_t *bestMove = NULL;
-
-//     // 查询开局数据库
-//     std::unordered_map<std::string, int>::iterator query
-//         = this->database.openingBook.find(moveHistory);
-
-//     // 如果没有合法移动
-//     // if (legalMoves.empty()) {
-//     if (move_hash_empty(legalMoves)) {
-//         std::cout << "No legal moves!" << std::endl;
-//         std::cout << "\tComputer passes.\n" << std::endl;
-//         pass = true;
-//         return bestMove;
-//     }
-//     // 如果只有一个合法移动
-//     // else if (legalMoves.size() == 1) {
-//     else if (size_moves(legalMoves) == 1) {
-//         std::cout << "Only one legal move!" << std::endl;
-//         std::cout << "\tComputer takes only legal move." << std::endl;
-//         // bestMove = *legalMoves.begin();
-//         bestMove = find_begin(legalMoves);
-//     }
-//     // 如果开局已知
-//     else if (query != this->database.openingBook.end()) {
-//         std::cout << "Known opening!" << std::endl;
-//         std::cout << "\tComputer takes next move from opening book."
-//             << std::endl;
-//         // bestMove = *legalMoves.find(query->second);
-//         bestMove = find_move(legalMoves,query->second);
-//     }
-//     // 其他情况
-//     else {
-//         // 计算最大搜索深度
-//         int maxDepth = 64 - board->discsOnBoard;
-
-//         // 如果最大深度小于10，则搜索到终端状态
-//         if (maxDepth < 10) {
-//             // 搜索到终端状态
-//             std::cout << "Searching remainder of game tree..." << std::endl;
-//             std::cout << "\tSearching to depth " << maxDepth;
-
-//             bestMove = this->depthLimitedAlphaBeta(board, maxDepth, startTime,
-//                     board->timeLimit);
-
-//             std::cout << "\t\tSearch complete." << std::endl;
-//         }
-//         // 否则，使用迭代加深搜索
-//         else {
-//             // 搜索游戏树
-//             std::cout << "Searching game tree..." << std::endl;
-
-//             // 迭代加深搜索
-//             for (int depthLimit = 1; depthLimit <= maxDepth; depthLimit++) {
-//                 std::cout << "\tSearching to depth " << depthLimit;
-
-//                 move = this->depthLimitedAlphaBeta(board, depthLimit, startTime,
-//                         board->timeLimit);
-
-//                 // 如果搜索被中止
-//                 // if (move.first == -1) {
-//                 if (move->position == -1) {
-//                     std::cout << "\t\tSearch aborted." << std::endl;
-//                     break;
-//                 }
-//                 // 否则，更新最佳移动
-//                 else {
-//                     std::cout << "\t\tSearch complete." << std::endl;
-//                     bestMove = move;
-//                 }
-
-//                 // 如果时间过半，则停止搜索
-//                 if (this->stopTimer(startTime) > 0.5*board->timeLimit) {
-//                     break;
-//                 }
-//             }
-//         }
-//     }
-
-//     // 打印消耗时间
-//     std::cout << "\tTime elapsed: " << this->stopTimer(startTime) << " sec"
-//         << std::endl;
-
-//     if(NULL != bestMove){
-//         // 将索引转换为坐标并打印
-//         int rowNum = 0, colNum = 0;
-//         std::string colCoord = "ABCDEFGH";
-//         std::string rowCoord = "12345678";
-//         board->index2coord(bestMove->position, colNum, rowNum);
-//         std::cout << "\tComputer takes: " << colCoord[colNum] << rowCoord[rowNum]
-//             << "\n" << std::endl;    
-//     }
-    
-
-//     // 返回最佳移动
-//     return bestMove;
-// }
 
 MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MoveHash_t *legalMoves,bool pass,char *moveHistory) {
     struct timespec startTime;
@@ -558,7 +445,7 @@ MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board
 
     if (bestMove != NULL) {
         int colNum = 0, rowNum = 0;
-        board_index2coord(bestMove->position, &colNum, &rowNum);
+        othelloBoard_index2coord(bestMove->position, &colNum, &rowNum);
         printf("\tComputer takes: %c%d\n\n", 'A' + colNum, rowNum + 1);
     }
 
@@ -580,9 +467,11 @@ MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board
 //     // startTimer 函数结束
 // }
 
-clock_t startTimer() {
-    // 返回当前系统时钟的时间点
-    return clock();
+struct timespec othelloPlayer_startTimer() {
+    struct timespec startTime;
+    // 使用 CLOCK_REALTIME 或者 CLOCK_MONOTONIC 获取当前时间
+    clock_gettime(CLOCK_REALTIME, &startTime);
+    return startTime;
 }
 
 // Returns time elapsed in seconds
@@ -594,26 +483,16 @@ clock_t startTimer() {
  * @param startTime 开始时间
  * @return 返回从startTime到当前时间的经过时间（秒）
  */
-// float othelloPlayer::stopTimer(
-//         std::chrono::time_point<std::chrono::system_clock> startTime) {
-//     // 获取当前时间作为结束时间
-//     std::chrono::time_point<std::chrono::system_clock> endTime =
-//         std::chrono::system_clock::now();
 
-//     // 计算时间差，单位为秒
-//     // 创建一个持续时间的实例，其值为endTime与startTime的差值，单位为秒
-//     std::chrono::duration<float> elapsedSeconds = endTime - startTime;
 
-//     // 返回经过的时间（秒）
-//     return elapsedSeconds.count();
-// }
-
-float stopTimer(clock_t startTime) {
+float othelloPlayer_stopTimer(struct timespec startTime) {
     // 获取当前时间作为结束时间
-    clock_t endTime = clock();
+    struct timespec endTime;
+    clock_gettime(CLOCK_REALTIME, &endTime);
 
     // 计算时间差并转换为秒
-    float elapsedSeconds = (float)(endTime - startTime) / CLOCKS_PER_SEC;
+    float elapsedSeconds = (endTime.tv_sec - startTime.tv_sec) +
+                           (endTime.tv_nsec - startTime.tv_nsec) / 1e9;
 
     // 返回经过的时间（秒）
     return elapsedSeconds;
@@ -636,7 +515,7 @@ float stopTimer(clock_t startTime) {
  */
 
 
-MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoard *board, int depthLimit,clock_t startTime, float timeLimit) {
+MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoard *board, int depthLimit,struct timespec startTime, float timeLimit) {
     // 初始化根节点
     player->nodeStack[0].isMaxNode = 1;
     player->nodeStack[0].alpha = INT_MIN;
@@ -736,9 +615,12 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         else {
             // 生成下一个节点，增加迭代器
             player->nodeStack[depth+1].board = player->nodeStack[depth].board;
-            player->nodeStack[depth+1].board->updateBoard(
-                    (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
-                    player->nodeStack[depth].moveIterator);
+            // player->nodeStack[depth+1].board->updateBoard(
+            //         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
+            //         player->nodeStack[depth].moveIterator);
+            othelloBoard_updateBoard(player->nodeStack[depth+1].board,
+                                    (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
+                                    player->nodeStack[depth].moveIterator);
             player->nodeStack[depth].prevIterator = player->nodeStack[depth].moveIterator;
             player->nodeStack[depth].moveIterator = find_next(player->nodeStack[depth].board->moves, player->nodeStack[depth].prevIterator);
 
@@ -750,16 +632,19 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                 player->nodeStack[depth].score = (player->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 player->nodeStack[depth].alpha = player->nodeStack[depth-1].alpha;
                 player->nodeStack[depth].beta = player->nodeStack[depth-1].beta;
-                player->nodeStack[depth].board->findLegalMoves(
-                        (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
-                        &player->nodeStack[depth].board->moves);
-
+                // player->nodeStack[depth].board->findLegalMoves(
+                //         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
+                //         &player->nodeStack[depth].board->moves);
+                othelloBoard_findLegalMoves(player->nodeStack[depth].board,
+                                        (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
+                                        &player->nodeStack[depth].board->moves);
                 player->nodeStack[depth].moveIterator = find_begin(player->nodeStack[depth].board->moves);
                 player->nodeStack[depth].prevIterator = player->nodeStack[depth].moveIterator;
                 player->nodeStack[depth].lastMove = find_end(player->nodeStack[depth].board->moves);
             }
             else {
-                leafScore = heuristic_evaluate(player->heuristic, player->nodeStack[depth+1].board, player->color);
+                leafScore = othelloHeuristic_evaluate(player->nodeStack[depth+1].board, player->color);
+                
 
                 if (player->nodeStack[depth].isMaxNode) {
                     if (leafScore > player->nodeStack[depth].score) {
@@ -785,7 +670,15 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         }
 
         // 如果时间即将耗尽，则返回失败标志
-        if ((clock() - startTime) / CLOCKS_PER_SEC > 0.998 * timeLimit) {
+        struct timespec currentTime;
+        clock_gettime(CLOCK_REALTIME, &currentTime);
+
+        // 计算从 startTime 到 currentTime 的经过时间（秒）
+        float elapsedTime = (currentTime.tv_sec - startTime.tv_sec) +
+                            (currentTime.tv_nsec - startTime.tv_nsec) / 1e9;
+
+        // 如果时间即将耗尽，则返回失败标志
+        if (elapsedTime > 0.998 * timeLimit) {
             MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
             if (move == NULL) {
                 printf("malloc fail\n");
