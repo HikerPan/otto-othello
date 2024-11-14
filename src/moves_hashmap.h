@@ -27,6 +27,11 @@ typedef struct _move_hash_t_ {
     UT_hash_handle hh;        // 必须的哈希表句柄
 }MoveHash_t;
 
+typedef struct {
+    int key;       // 存储整数
+    UT_hash_handle hh; // uthash 处理器
+} IntSetNode;
+
 
 
 int move_hash_empty(MoveHash_t *head);
@@ -44,6 +49,12 @@ void insert_moves(MoveHash_t **hashTable, MovePair_t *moves_node);
 int size_moves(MoveHash_t *hashTable);
 MovePair_t *find_next(MoveHash_t *moves, MovePair_t *current);
 
+void add_to_set(IntSetNode **set, int value);
+int is_in_set(IntSetNode *set, int value);
+void remove_from_set(IntSetNode **set, int value);
+void clear_set(IntSetNode **set);
+int count_set_elements(IntSetNode *set);
+ 
 #ifdef __cplusplus
 }
 #endif

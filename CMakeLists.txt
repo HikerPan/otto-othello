@@ -1,11 +1,9 @@
-# 设置 CMake 最低版本和项目名称
 cmake_minimum_required(VERSION 3.10)
-project(OttoOthello)
+project(OttoOthello C)
 
-# 设置 C++ 标准
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Set C standard
 set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED True)
 
 # 包含项目头文件目录
 include_directories(src)
@@ -16,12 +14,12 @@ include_directories(src)
 # file(GLOB SOURCES "src/*.cpp")
 # 指定源文件
 set(SOURCES
-    src/board.cpp
-    src/database.cpp
-    src/game.cpp
-    src/heuristic.cpp
-    src/othello.cpp
-    src/player.cpp
+    src/board.c
+    src/database.c
+    src/game.c
+    src/heuristic.c
+    src/othello.c
+    src/player.c
     src/moves_hashmap.c
 )
 

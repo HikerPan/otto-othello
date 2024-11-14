@@ -316,4 +316,51 @@ void insert_moves(MoveHash_t **hashTable, MovePair_t *moves_node) {
 
 }
 
+// 添加元素到集合
+void add_to_set(IntSetNode **set, int value) {
+    IntSetNode *node = NULL;
+    HASH_FIND_INT(*set, &value, node);
+    if (node == NULL) {
+        node = (IntSetNode *)malloc(sizeof(IntSetNode));
+        node->key = value;
+        HASH_ADD_INT(*set, key, node);
+    }
+}
+
+// 检查元素是否在集合中
+int is_in_set(IntSetNode *set, int value) {
+    IntSetNode *node = NULL;
+    HASH_FIND_INT(set, &value, node);
+    return node != NULL;
+}
+
+// 从集合中删除元素
+void remove_from_set(IntSetNode **set, int value) {
+    IntSetNode *node = NULL;
+    HASH_FIND_INT(*set, &value, node);
+    if (node != NULL) {
+        HASH_DEL(*set, node);
+        free(node);
+    }
+}
+
+// 清空集合
+void clear_set(IntSetNode **set) {
+    IntSetNode *current_node, *tmp;
+    HASH_ITER(hh, *set, current_node, tmp) {
+        HASH_DEL(*set, current_node);
+        free(current_node);
+    }
+}
+
+int count_set_elements(IntSetNode *set) {
+    int count = 0;
+    IntSetNode *current_node;
+    for (current_node = set; current_node != NULL; current_node = current_node->hh.next) {
+        count++;
+    }
+    return count;
+}
+
+
 

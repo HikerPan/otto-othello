@@ -52,6 +52,8 @@
         "stdexcept": "cpp",
         "streambuf": "cpp",
         "typeinfo": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "uthash.h": "c",
+        "board.h": "c"
     }
 }
