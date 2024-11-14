@@ -180,14 +180,14 @@ void othelloGame::move(int color) {
         // 如果是黑方下棋
         std::cout << "Black to move" << std::endl;
         // 调用黑方玩家的move方法，获取移动结果
-        move = this->blackPlayer.move(this->board, this->board.moves,
+        move = this->blackPlayer.move(&this->board, this->board.moves,
                 this->board.passes[0], this->moveHistory);
     } 
     else if (color == -1) {
         // 如果是白方下棋
         std::cout << "White to move" << std::endl;
         // 调用白方玩家的move方法，获取移动结果
-        move = this->whitePlayer.move(this->board, this->board.moves,
+        move = this->whitePlayer.move(&this->board, this->board.moves,
                 this->board.passes[0], this->moveHistory);
     }
 

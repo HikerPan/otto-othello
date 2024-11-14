@@ -17,9 +17,9 @@
 // std::pair<int, std::list<int>> othelloPlayer::move(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves,
 //         bool &pass, std::string &moveHistory) {
-MovePair_t *othelloPlayer::move(othelloBoard &board,
+MovePair_t *othelloPlayer::move(othelloBoard *board,
         MoveHash_t *legalMoves,
-        bool &pass, char *moveHistory) {
+        bool pass, char *moveHistory) {
 
     // 初始化移动选择
     // std::pair<int, std::list<int>> moveChoice;
@@ -308,8 +308,8 @@ int othelloPlayer::coord2index(char *coord) {
 // std::pair<int, std::list<int>> othelloPlayer::computerMove(othelloBoard &board,
 //         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass,
 //         char *moveHistory) {
-MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
-        MoveHash_t *legalMoves, bool &pass,
+MovePair_t *othelloPlayer::computerMove(othelloBoard *board,
+        MoveHash_t *legalMoves, bool pass,
         char *moveHistory) {
             
     std::chrono::time_point<std::chrono::system_clock> startTime
@@ -352,7 +352,7 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
     // 其他情况
     else {
         // 计算最大搜索深度
-        int maxDepth = 64 - board.discsOnBoard;
+        int maxDepth = 64 - board->discsOnBoard;
 
         // 如果最大深度小于10，则搜索到终端状态
         if (maxDepth < 10) {
@@ -361,7 +361,7 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
             std::cout << "\tSearching to depth " << maxDepth;
 
             bestMove = this->depthLimitedAlphaBeta(board, maxDepth, startTime,
-                    board.timeLimit);
+                    board->timeLimit);
 
             std::cout << "\t\tSearch complete." << std::endl;
         }
@@ -375,7 +375,7 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
                 std::cout << "\tSearching to depth " << depthLimit;
 
                 move = this->depthLimitedAlphaBeta(board, depthLimit, startTime,
-                        board.timeLimit);
+                        board->timeLimit);
 
                 // 如果搜索被中止
                 // if (move.first == -1) {
@@ -390,7 +390,7 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
                 }
 
                 // 如果时间过半，则停止搜索
-                if (this->stopTimer(startTime) > 0.5*board.timeLimit) {
+                if (this->stopTimer(startTime) > 0.5*board->timeLimit) {
                     break;
                 }
             }
@@ -406,7 +406,7 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
         int rowNum = 0, colNum = 0;
         std::string colCoord = "ABCDEFGH";
         std::string rowCoord = "12345678";
-        board.index2coord(bestMove->position, colNum, rowNum);
+        board->index2coord(bestMove->position, colNum, rowNum);
         std::cout << "\tComputer takes: " << colCoord[colNum] << rowCoord[rowNum]
             << "\n" << std::endl;    
     }
@@ -473,7 +473,7 @@ float othelloPlayer::stopTimer(
 //         std::chrono::time_point<std::chrono::system_clock> startTime,
 //         float timeLimit) {
 MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
-        othelloBoard &board, int depthLimit,
+        othelloBoard *board, int depthLimit,
         std::chrono::time_point<std::chrono::system_clock> startTime,
         float timeLimit) {
     // 初始化根节点
@@ -484,16 +484,16 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
     this->nodeStack[0].score = INT_MIN;
     this->nodeStack[0].board = board;
     // this->nodeStack[0].moveIterator = this->nodeStack[0].board.moves.begin();
-    this->nodeStack[0].moveIterator = find_begin(this->nodeStack[0].board.moves);
+    this->nodeStack[0].moveIterator = find_begin(this->nodeStack[0].board->moves);
     this->nodeStack[0].prevIterator = this->nodeStack[0].moveIterator;
     // this->nodeStack[0].lastMove = this->nodeStack[0].board.moves.end();
-    this->nodeStack[0].lastMove = find_end(this->nodeStack[0].board.moves);
+    this->nodeStack[0].lastMove = find_end(this->nodeStack[0].board->moves);
 
     int depth = 0;
     int leafScore = 0;
     // std::unordered_map<int, std::list<int>>::iterator bestMove =
     //     this->nodeStack[0].board.moves.begin();
-    MovePair_t *bestMove = find_begin(this->nodeStack[0].board.moves);
+    MovePair_t *bestMove = find_begin(this->nodeStack[0].board->moves);
 
     // 当尚未评估根节点的所有子节点时
     // While we have not evaluated all the root's children
@@ -593,13 +593,13 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
             // 生成下一个节点，增加迭代器
             // Generate next node, increment iterators
             this->nodeStack[depth+1].board = this->nodeStack[depth].board;
-            this->nodeStack[depth+1].board.updateBoard(
+            this->nodeStack[depth+1].board->updateBoard(
                     (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
                     this->nodeStack[depth].moveIterator);
             this->nodeStack[depth].prevIterator = this->nodeStack[depth].moveIterator;
             // 这里因为改用了C语言的写法，moveIterator不能直接用++来操作，应当首先找到move hash，然后再从move hash表中找到下一个
             // this->nodeStack[depth].moveIterator++;
-            this->nodeStack[depth].moveIterator = find_next(this->nodeStack[depth].board.moves,this->nodeStack[depth].prevIterator);
+            this->nodeStack[depth].moveIterator = find_next(this->nodeStack[depth].board->moves,this->nodeStack[depth].prevIterator);
 
             // 如果下一个深度未达到深度限制
             // If the next depth is not at the depth limit
@@ -613,9 +613,9 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
                     (this->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 this->nodeStack[depth].alpha = this->nodeStack[depth-1].alpha;
                 this->nodeStack[depth].beta = this->nodeStack[depth-1].beta;
-                this->nodeStack[depth].board.findLegalMoves(
+                this->nodeStack[depth].board->findLegalMoves(
                         (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
-                        &this->nodeStack[depth].board.moves);
+                        &this->nodeStack[depth].board->moves);
 
                 /*
                 std::unordered_map<int, std::list<int>> foo1
@@ -638,16 +638,16 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
 
                 // this->nodeStack[depth].moveIterator =
                 //     this->nodeStack[depth].board.moves.begin();
-                this->nodeStack[depth].moveIterator = find_begin(this->nodeStack[depth].board.moves);
+                this->nodeStack[depth].moveIterator = find_begin(this->nodeStack[depth].board->moves);
                 this->nodeStack[depth].prevIterator =this->nodeStack[depth].moveIterator;
                 // this->nodeStack[depth].lastMove = this->nodeStack[depth].board.moves.end();
-                this->nodeStack[depth].lastMove = find_end(this->nodeStack[depth].board.moves);
+                this->nodeStack[depth].lastMove = find_end(this->nodeStack[depth].board->moves);
             }
             else {
                 // 节点为叶节点：评估启发式函数并更新值
                 // The node is a leaf: evaluate heuristic and update values
                 leafScore = this->heuristic.evaluate(
-                        &this->nodeStack[depth+1].board, this->color);
+                        this->nodeStack[depth+1].board, this->color);
 
                 if (this->nodeStack[depth].isMaxNode) {
                     if (leafScore > this->nodeStack[depth].score) {
