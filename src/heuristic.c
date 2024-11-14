@@ -54,7 +54,7 @@ int othelloHeuristic_discDifference(othelloBoard *board, int color) {
 // Number of possible moves
 
 int othelloHeuristic_mobility(othelloBoard *board, int color) {
-    MoveHash_t *pMoves = NULL;
+    MovePair_t *pMoves = NULL;
     othelloBoard_findLegalMoves(board,1, &pMoves);
     int blackMoves = size_moves(pMoves);
     clear_moves(pMoves);

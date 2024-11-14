@@ -18,7 +18,7 @@
  * @param moveHistory 历史移动记录
  * @return 返回移动结果，包含移动的行索引和列索引列表
  */
-MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MoveHash_t *legalMoves,bool pass,char *moveHistory) {
+MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory) {
     MovePair_t *moveChoice = NULL;
 
     if (player->computer) {
@@ -48,121 +48,8 @@ MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MoveHas
  * @param pass 是否选择跳过回合
  * @return std::pair<int, std::list<int>> 玩家选择的走法，第一个元素为走法的编号或坐标索引，第二个元素为对应的走法列表
  */
-// std::pair<int, std::list<int>> othelloPlayer::humanMove(
-//         std::unordered_map<int, std::list<int>> &legalMoves, bool &pass) {
-// MovePair_t *othelloPlayer::humanMove(
-//         MoveHash_t *legalMoves, bool &pass) {
-//     // 存储用户输入的字符串
-//     char str[20];
-//     // 存储用户选择的移动
-//     MovePair_t *move = NULL;
-//     // 记录用户输入的移动编号
-//     int moveNum = 0;
-//     // 记录用户输入的坐标索引
-//     int coordIndex = -1;
-//     // 记录用户输入是否有效
-//     bool validInput = false;
 
-//     // 如果没有合法移动
-//     // if (legalMoves.empty()) {
-//     if (move_hash_empty(legalMoves)) {
-        
-//         // 输出没有合法移动的信息
-//         std::cout << "No legal moves!" << std::endl;
-//         // 提示用户输入任意非空字符串表示放弃
-//         std::cout << "\tEnter any non-empty string to pass: ";
-//         // 读取用户输入的字符串
-//         // std::cin >> str;
-//         // 清除输入缓冲区
-//         // while (std::cin.get() != '\n');          // clear buffer
-//         scanf("%19s", str); // 注意使用 %99s 限制输入长度，以防止缓冲区溢出
-
-//         // 清除输入缓冲区
-//         int ch;
-//         while ((ch = getchar()) != '\n' && ch != EOF); // 清除输入缓冲区中的剩余字符
-//         // 输出换行符
-//         std::cout << std::endl;
-//         // 设置pass为true表示用户选择放弃
-//         pass = true;
-//         // 返回空的移动
-//         return move;
-//     }
-
-//     // 循环直到用户输入有效
-//     do {
-//         // 提示用户选择移动编号或坐标
-//         std::cout << "\tSelect move number/square coordinate: ";
-//         // // 读取用户输入的字符串
-//         // std::cin >> str;
-        
-//         // // 清除输入缓冲区
-//         // while (std::cin.get() != '\n');          // clear buffer
-//         scanf("%19s", str); // 注意使用 %99s 限制输入长度，以防止缓冲区溢出
-
-//         // 清除输入缓冲区
-//         int ch;
-//         while ((ch = getchar()) != '\n' && ch != EOF); // 清除输入缓冲区中的剩余字符
-//         // 将输入的字符串转换为坐标索引
-//         coordIndex = coord2index(str);
-//         // 创建输入字符串流
-//         std::istringstream iss(str);
-//         // 尝试从输入字符串中读取移动编号
-//         iss >> moveNum;
-
-//         // 如果坐标索引有效且是合法移动
-//         // if (coordIndex != -1
-//         //         && legalMoves.find(coordIndex) != legalMoves.end()) {
-//         if (coordIndex != -1
-//                 && find_move(legalMoves,coordIndex) != find_end(legalMoves)) {
-                    
-//             // 输出换行符
-//             std::cout << std::endl;
-//             // 返回用户选择的移动
-//             // return *legalMoves.find(coordIndex);
-//             return find_move(legalMoves,coordIndex);
-//         }
-//         // 如果输入既不是坐标也不是有效编号
-//         // else if (!iss.eof() || moveNum > legalMoves.size() || moveNum < 1) {
-//         else if (!iss.eof() || moveNum > size_moves(legalMoves) || moveNum < 1) {
-            
-//             // 提示用户输入无效，请重新输入
-//             std::cout << "\tInvalid input. Please try again.\n" << std::endl;
-//         }
-//         // 如果输入是有效编号但不在合法移动列表中
-//         else {
-//             // 设置validInput为true表示输入有效
-//             validInput = true;
-//             // 输出换行符
-//             std::cout << std::endl;
-//         }
-//     }
-//     // 循环直到validInput为true
-//     while (!validInput);
-
-//     // 遍历合法移动列表
-//     int i = 0;
-//     MoveHash_t *keyval = NULL;
-//     MoveHash_t *tmp = NULL;
-//     HASH_ITER(hh, legalMoves, keyval, tmp){
-//     // for (std::pair<int, std::list<int>> keyval : legalMoves) {
-//         if(NULL != keyval){
-//             // 保存当前遍历到的移动
-//             move = &keyval->moves_pair;
-//             // 递增计数器
-//             i++;
-//             // 如果计数器等于用户输入的编号
-//             if (i == moveNum) {
-//                 // 跳出循环
-//                 break;
-//             }    
-//         }
-        
-//     }
-
-//     // 返回用户选择的移动
-//     return move;
-// }
-MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MoveHash_t *legalMoves,bool *pass) {
+MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MovePair_t *legalMoves,bool *pass) {
     // 存储用户输入的字符串
     char str[20];
     // 存储用户选择的移动
@@ -230,11 +117,13 @@ MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MoveHash_t *legalMoves
 
     // 遍历合法移动列表，找到用户选择的移动编号对应的项
     int i = 0;
-    MoveHash_t *keyval = NULL;
-    MoveHash_t *tmp = NULL;
-    HASH_ITER(hh, legalMoves, keyval, tmp) {
+    MovePair_t *keyval = NULL;
+    MovePair_t *tmp = NULL;
+    
+    // HASH_ITER(hh, legalMoves, keyval, tmp) {
+    LL_FOREACH_SAFE(legalMoves, keyval, tmp){
         if (keyval != NULL) {
-            move = &keyval->moves_pair;
+            move = keyval;
             i++;
             // 如果计数器等于用户输入的编号
             if (i == moveNum) {
@@ -408,7 +297,7 @@ int othelloPlayer_coord2index(char *coord) {
  * @return 返回电脑走法的行列索引对
  */
 
-MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MoveHash_t *legalMoves,bool pass,char *moveHistory) {
+MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory) {
     struct timespec startTime;
     clock_gettime(CLOCK_REALTIME, &startTime);
 

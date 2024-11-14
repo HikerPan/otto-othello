@@ -71,16 +71,18 @@ void othelloBoard_displayLegalMoves(othelloBoard *board) {
     char rowCoord[] = "12345678";
     int colNum = 0, rowNum = 0;
     int moveNum = 1;
-    MoveHash_t *keyval, *tmp;
+    MovePair_t *keyval = NULL;
+    MovePair_t *tmp = NULL;
 
     printf("Legal moves:\n");
 
-    HASH_ITER(hh, board->moves, keyval, tmp) {
+    // HASH_ITER(hh, board->moves, keyval, tmp) {
+    LL_FOREACH_SAFE(board->moves, keyval, tmp){
         othelloBoard_index2coord(keyval->position, &colNum, &rowNum);
         printf("\t%d\t%c%c will flip: ", moveNum++, colCoord[colNum], rowCoord[rowNum]);
 
         IntListNode_t *node;
-        LL_FOREACH(keyval->moves_pair.flip_list, node) {
+        LL_FOREACH(keyval->flip_list, node) {
             othelloBoard_index2coord(node->flip_position, &colNum, &rowNum);
             printf("%c%c ", colCoord[colNum], rowCoord[rowNum]);
         }
@@ -101,25 +103,25 @@ void othelloBoard_displayLegalMoves(othelloBoard *board) {
  * @param color 当前玩家的颜色
  * @param pMoves 用于存储合法走法的指针，键为棋盘位置，值为可能的走法列表
  */
-void othelloBoard_findLegalMoves(othelloBoard *board, int color, MoveHash_t **pMoves) {
+void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pMoves) {
     // 清除上一手棋的合法走法
     clear_moves(board->moves);
 
     for (int i = 0; i < OTHELLO_BOARD_SIZE; i++) {
         if (board->positions[i] == color) {
             // 检查行
-            othelloBoard_findLegalMoveInDirection(board, i, color, -1, pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 1, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -1, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 1, *pMoves);
 
             // 检查列
-            othelloBoard_findLegalMoveInDirection(board, i, color, -8, pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 8, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -8, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 8, *pMoves);
 
             // 检查对角线
-            othelloBoard_findLegalMoveInDirection(board, i, color, -9, pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 9, pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, -7, pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 7, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -9, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 9, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -7, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 7, *pMoves);
         }
     }
 }
@@ -138,7 +140,7 @@ void othelloBoard_findLegalMoves(othelloBoard *board, int color, MoveHash_t **pM
  * @param direction 移动方向（正数或负数，表示向上、向下、向左或向右移动）
  * @param pMoves 指向存储合法移动和翻转棋子列表的哈希表的指针
  */
-void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MoveHash_t **pMoves) {
+void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t *pMoves) {
     // 初始化一个合法的移动和翻转的棋子列表
     MovePair_t *legalMove = NULL;
     IntListNode_t *flippedDiscs = NULL;
@@ -157,15 +159,17 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
 
         // 沿给定方向移动，记录相反颜色的棋子
         currentSquare = board->positions[i];
-        if (currentSquare == color || (currentSquare == 0 && flip_list_empty(flippedDiscs))) {
+        if (currentSquare == color         // 找到跟自己同色的棋子，则结束循环
+            || (currentSquare == 0 && flip_list_empty(flippedDiscs))) {  // 找到空位，且翻转列表为空，则结束循环
             break;
-        } else if (currentSquare == -color) {
+        } else if (currentSquare == -color) {   //找到对手棋子，则放入翻转列表
             list_push_front(&flippedDiscs, i);
             continue;
-        } else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {
+        } else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {    //遇到空位，且翻转列表不为空
             MovePair_t *it = find_move(*pMoves, i);
 
-            if (it != NULL && it != find_end(*pMoves)) {
+            // if (it != NULL && it != find_end(pMoves)) {
+            if (it != NULL) {
                 merge_flip_lists(&it->flip_list, flippedDiscs);
             } else {
                 legalMove = (MovePair_t *)malloc(sizeof(MovePair_t));

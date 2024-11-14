@@ -38,16 +38,16 @@ typedef struct othelloPlayer {
 // 声明函数接口
 
 // 生成移动，适用于玩家
-MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MoveHash_t *legalMoves,bool pass,char *moveHistory);
+MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory);
 
 // 获取用户下的下一步移动
-MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MoveHash_t *legalMoves,bool *pass);
+MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MovePair_t *legalMoves,bool *pass);
 
 // 将棋盘坐标转换为索引
 int othelloPlayer_coord2index(char *coord);
 
 // 生成AI算法的移动
-MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MoveHash_t *legalMoves,bool pass,char *moveHistory);
+MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory);
 
 // 启动计时器并返回开始时间
 struct timespec othelloPlayer_startTimer();

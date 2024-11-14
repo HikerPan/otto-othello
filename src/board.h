@@ -22,15 +22,15 @@ typedef struct {
     int discsOnBoard;                  // 棋盘上已有棋子的数量
     float timeLimit;                   // 时间限制
     bool passes[2];                    // 记录最近两次是否为 pass
-    MoveHash_t *moves;                 // 哈希表存储所有可能的走法
+    MovePair_t *moves;                 // 哈希表存储所有可能的走法
 } othelloBoard;
 
 // 函数声明
 void othelloBoard_init(othelloBoard *board);
 void othelloBoard_displayBoard(othelloBoard *board, int color);
 void othelloBoard_displayLegalMoves(othelloBoard *board);
-void othelloBoard_findLegalMoves(othelloBoard *board, int color, MoveHash_t **pMoves);
-void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MoveHash_t **pMoves);
+void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pMoves);
+void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t *pMoves);
 void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move);
 bool othelloBoard_terminalState(othelloBoard *board);
 void othelloBoard_index2coord(int index, int *colNum, int *rowNum);

@@ -14,18 +14,19 @@ typedef struct _IntListNode_ {
     struct _IntListNode_ *next;
 }IntListNode_t;
 
-typedef struct _MovePair_t
+typedef struct _MovePair_t_
 {
-    int position;             // 键：走法位置
-    IntListNode_t *flip_list;      // 值：翻转位置链表
+    int position;                       // 键：走法位置
+    IntListNode_t *flip_list;           // 值：翻转位置链表
+    struct _MovePair_t_ *next;     // 值：下一个走法
 }MovePair_t;
 
 // 定义哈希表结构，用于替代 std::unordered_map<int, std::list<int>>
-typedef struct _move_hash_t_ {
-    int position;             // 键：走法位置
-    MovePair_t moves_pair; 
-    UT_hash_handle hh;        // 必须的哈希表句柄
-}MoveHash_t;
+// typedef struct _move_hash_t_ {
+//     int position;             // 键：走法位置
+//     MovePair_t moves_pair; 
+//     UT_hash_handle hh;        // 必须的哈希表句柄
+// }MoveHash_t;
 
 typedef struct {
     int key;       // 存储整数
@@ -34,20 +35,21 @@ typedef struct {
 
 
 
-int move_hash_empty(MoveHash_t *head);
+int move_hash_empty(MovePair_t *head);
 int flip_list_empty(IntListNode_t *head);
 void list_push_front(IntListNode_t **head, int value);
-MovePair_t *find_begin(MoveHash_t *moves);
-MovePair_t *find_end(MoveHash_t *moves);
-void add_move(MoveHash_t *moves, int position, int *flips, int flip_count);
-MovePair_t *find_move(MoveHash_t *moves, int position);
-void delete_move(MoveHash_t *moves, int position);
-void clear_moves(MoveHash_t *moves);
-void print_moves(MoveHash_t *moves);
+MovePair_t *find_begin(MovePair_t *moves);
+MovePair_t *find_end(MovePair_t *moves);
+void add_move(MovePair_t *moves, int position, int *flips, int flip_count);
+MovePair_t *find_move(MovePair_t *moves, int position);
+void delete_move(MovePair_t *moves, int position);
+void clear_moves(MovePair_t *moves);
+void print_moves(MovePair_t *moves);
 int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
-void insert_moves(MoveHash_t **hashTable, MovePair_t *moves_node);
-int size_moves(MoveHash_t *hashTable);
-MovePair_t *find_next(MoveHash_t *moves, MovePair_t *current);
+// void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node);
+void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node);
+int size_moves(MovePair_t *hashTable);
+MovePair_t *find_next(MovePair_t *moves, MovePair_t *current);
 
 void add_to_set(IntSetNode **set, int value);
 int is_in_set(IntSetNode *set, int value);
