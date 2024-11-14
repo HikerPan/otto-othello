@@ -42,7 +42,7 @@ void print_moves(MoveHash_t *moves);
 int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
 void insert_moves(MoveHash_t **hashTable, MovePair_t *moves_node);
 int size_moves(MoveHash_t *hashTable);
-
+MovePair_t *find_next(MoveHash_t *moves, MovePair_t *current);
 
 #ifdef __cplusplus
 }

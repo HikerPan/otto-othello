@@ -58,6 +58,23 @@ MovePair_t *find_begin(MoveHash_t *moves) {
     return p_begin;
 }
 
+MovePair_t *find_next(MoveHash_t *moves, MovePair_t *current){
+    MoveHash_t *nextMove = NULL;
+    MoveHash_t *curMove = NULL;
+
+    if(NULL == moves || current == NULL){
+        return NULL;
+    }
+
+    HASH_ITER(hh,moves,curMove,nextMove){
+        if(NULL != curMove&&current->position == curMove->position){
+            return &nextMove->moves_pair;
+        }
+    }
+
+    return NULL;
+}
+
 /**
  * @brief 在链表中查找并返回最后一个元素的指针
  *

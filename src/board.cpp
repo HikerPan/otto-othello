@@ -297,17 +297,26 @@ void othelloBoard::updateBoard(int color, MovePair_t *move) {
     int square = move->position;
     IntListNode_t *flippedDiscs = move->flip_list;
 
+    if (flippedDiscs == NULL) {
+        printf("flippedDiscs is NULL\n");
+        return;
+    }
+
     // 将移动位置设置为当前玩家颜色
     this->positions[square] = color;
+    
 
     // 遍历翻转的棋子列表
-    // for (auto disc : flippedDiscs) {
+    // for (auto disc : flippedDiscs) {0
     IntListNode_t *disc = NULL;
-    LL_FOREACH(flippedDiscs,disc);
-    if(disc != NULL){
-        // 将翻转的棋子位置设置为当前玩家颜色
-        this->positions[disc->flip_position] = color;
+    IntListNode_t *tmp = NULL;
+    LL_FOREACH_SAFE(flippedDiscs,disc,tmp){
+        if(disc != NULL){
+            // 将翻转的棋子位置设置为当前玩家颜色
+            this->positions[disc->flip_position] = color;
+        }       
     }
+
 }
 
 // Checks if game is a terminal state

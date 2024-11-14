@@ -35,7 +35,9 @@ MovePair_t *othelloPlayer::move(othelloBoard &board,
         // 执行人类玩家的移动逻辑
         moveChoice = this->humanMove(legalMoves, pass);
     }
-
+    
+    if(NULL == moveChoice)
+        return NULL;
     // 将移动记录添加到历史记录中
     // moveHistory.append(std::to_string(moveChoice.first) + ",");
     char temp[8] = {0};
@@ -316,8 +318,8 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
     // 初始化移动对象
     // std::pair<int, std::list<int>> move;
     // std::pair<int, std::list<int>> bestMove;
-    MovePair_t *move;
-    MovePair_t *bestMove;
+    MovePair_t *move = NULL;
+    MovePair_t *bestMove = NULL;
 
     // 查询开局数据库
     std::unordered_map<std::string, int>::iterator query
@@ -399,13 +401,16 @@ MovePair_t *othelloPlayer::computerMove(othelloBoard &board,
     std::cout << "\tTime elapsed: " << this->stopTimer(startTime) << " sec"
         << std::endl;
 
-    // 将索引转换为坐标并打印
-    int rowNum = 0, colNum = 0;
-    std::string colCoord = "ABCDEFGH";
-    std::string rowCoord = "12345678";
-    board.index2coord(bestMove->position, colNum, rowNum);
-    std::cout << "\tComputer takes: " << colCoord[colNum] << rowCoord[rowNum]
-        << "\n" << std::endl;
+    if(NULL != bestMove){
+        // 将索引转换为坐标并打印
+        int rowNum = 0, colNum = 0;
+        std::string colCoord = "ABCDEFGH";
+        std::string rowCoord = "12345678";
+        board.index2coord(bestMove->position, colNum, rowNum);
+        std::cout << "\tComputer takes: " << colCoord[colNum] << rowCoord[rowNum]
+            << "\n" << std::endl;    
+    }
+    
 
     // 返回最佳移动
     return bestMove;
@@ -592,7 +597,9 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
                     (this->nodeStack[depth].isMaxNode ? this->color : -this->color),
                     this->nodeStack[depth].moveIterator);
             this->nodeStack[depth].prevIterator = this->nodeStack[depth].moveIterator;
-            this->nodeStack[depth].moveIterator++;
+            // 这里因为改用了C语言的写法，moveIterator不能直接用++来操作，应当首先找到move hash，然后再从move hash表中找到下一个
+            // this->nodeStack[depth].moveIterator++;
+            this->nodeStack[depth].moveIterator = find_next(this->nodeStack[depth].board.moves,this->nodeStack[depth].prevIterator);
 
             // 如果下一个深度未达到深度限制
             // If the next depth is not at the depth limit
@@ -640,7 +647,7 @@ MovePair_t *othelloPlayer::depthLimitedAlphaBeta(
                 // 节点为叶节点：评估启发式函数并更新值
                 // The node is a leaf: evaluate heuristic and update values
                 leafScore = this->heuristic.evaluate(
-                        this->nodeStack[depth+1].board, this->color);
+                        &this->nodeStack[depth+1].board, this->color);
 
                 if (this->nodeStack[depth].isMaxNode) {
                     if (leafScore > this->nodeStack[depth].score) {
