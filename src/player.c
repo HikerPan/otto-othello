@@ -504,9 +504,6 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         else {
             // 生成下一个节点，增加迭代器
             player->nodeStack[depth+1].board = player->nodeStack[depth].board;
-            // player->nodeStack[depth+1].board->updateBoard(
-            //         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
-            //         player->nodeStack[depth].moveIterator);
             othelloBoard_updateBoard(player->nodeStack[depth+1].board,
                                     (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                     player->nodeStack[depth].moveIterator);
@@ -521,9 +518,6 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                 player->nodeStack[depth].score = (player->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 player->nodeStack[depth].alpha = player->nodeStack[depth-1].alpha;
                 player->nodeStack[depth].beta = player->nodeStack[depth-1].beta;
-                // player->nodeStack[depth].board->findLegalMoves(
-                //         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
-                //         &player->nodeStack[depth].board->moves);
                 othelloBoard_findLegalMoves(player->nodeStack[depth].board,
                                         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                         &player->nodeStack[depth].board->moves);

@@ -57,11 +57,11 @@ int othelloHeuristic_mobility(othelloBoard *board, int color) {
     MovePair_t *pMoves = NULL;
     othelloBoard_findLegalMoves(board,1, &pMoves);
     int blackMoves = size_moves(pMoves);
-    clear_moves(pMoves);
+    clear_moves(&pMoves);
 
     othelloBoard_findLegalMoves(board,-1, &pMoves);
     int whiteMoves = size_moves(pMoves);
-    clear_moves(pMoves);
+    clear_moves(&pMoves);
 
     if (color == 1) {
         return 100 * (blackMoves - whiteMoves) / (blackMoves + whiteMoves + 1);

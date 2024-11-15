@@ -43,7 +43,7 @@ MovePair_t *find_end(MovePair_t *moves);
 void add_move(MovePair_t *moves, int position, int *flips, int flip_count);
 MovePair_t *find_move(MovePair_t *moves, int position);
 void delete_move(MovePair_t *moves, int position);
-void clear_moves(MovePair_t *moves);
+void clear_moves(MovePair_t **moves);
 void print_moves(MovePair_t *moves);
 int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
 // void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node);

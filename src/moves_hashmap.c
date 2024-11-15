@@ -154,7 +154,7 @@ void delete_move(MovePair_t *moves, int position) {
 }
 
 // 清空所有走法
-void clear_moves(MovePair_t *moves) {
+void clear_moves(MovePair_t **moves) {
     MovePair_t *curMove = NULL;
     MovePair_t *nextMove = NULL;
 
@@ -163,10 +163,12 @@ void clear_moves(MovePair_t *moves) {
         return ;
     }
 
-    LL_FOREACH_SAFE(moves,curMove,nextMove){
+    LL_FOREACH_SAFE(*moves,curMove,nextMove){
         if(NULL != curMove)
         {
-            LL_DELETE(moves,curMove);
+            LL_DELETE(*moves,curMove);
+            // free(curMove);
+            // curMove = NULL;
         }    
     }
 
