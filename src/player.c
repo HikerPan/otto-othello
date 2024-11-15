@@ -555,23 +555,23 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         }
 
         // 如果时间即将耗尽，则返回失败标志
-        // struct timespec currentTime;
-        // clock_gettime(CLOCK_REALTIME, &currentTime);
+        struct timespec currentTime;
+        clock_gettime(CLOCK_REALTIME, &currentTime);
 
-        // // 计算从 startTime 到 currentTime 的经过时间（秒）
-        // float elapsedTime = (currentTime.tv_sec - startTime.tv_sec) +
-        //                     (currentTime.tv_nsec - startTime.tv_nsec) / 1e9;
+        // 计算从 startTime 到 currentTime 的经过时间（秒）
+        float elapsedTime = (currentTime.tv_sec - startTime.tv_sec) +
+                            (currentTime.tv_nsec - startTime.tv_nsec) / 1e9;
 
-        // // 如果时间即将耗尽，则返回失败标志
-        // if (elapsedTime > 0.998 * timeLimit) {
-        //     MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
-        //     if (move == NULL) {
-        //         printf("malloc fail\n");
-        //         return NULL;
-        //     }
-        //     move->position = -1;
-        //     return move;
-        // }
+        // 如果时间即将耗尽，则返回失败标志
+        if (elapsedTime > 0.998 * timeLimit) {
+            MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
+            if (move == NULL) {
+                printf("malloc fail\n");
+                return NULL;
+            }
+            move->position = -1;
+            return move;
+        }
     }
 
     return bestMove;
