@@ -50,7 +50,7 @@ MovePair_t *find_begin(MovePair_t *moves) {
     MovePair_t *p_begin = NULL;
 
     if(NULL == moves){
-        printf("\n[find_begin] NULL == moves.\n");
+        // printf("\n[find_begin] NULL == moves.\n");
         return NULL;
     }
     p_begin = moves;
@@ -89,7 +89,7 @@ MovePair_t *find_end(MovePair_t  *moves) {
     MovePair_t *nextMove = NULL;
 
     if(NULL == moves){
-        printf("\n[find_end] NULL == moves.\n");
+        // printf("\n[find_end] NULL == moves.\n");
         return NULL;
     }
 
@@ -98,13 +98,6 @@ MovePair_t *find_end(MovePair_t  *moves) {
             return curMove;
     }
 
-    // // 遍历哈希表
-    // HASH_ITER(hh,moves,curMove,nextMove){
-    //     if(NULL == nextMove){
-    //         p_end = &curMove->moves_pair;
-    //         return p_end;
-    //     }
-    // }
     
     return NULL;
 }
@@ -116,7 +109,7 @@ MovePair_t *find_move(MovePair_t *moves, int position) {
     MovePair_t *nextMove = NULL;
 
     if(NULL == moves){
-        printf("\n[find_move] NULL == moves.\n");
+        // printf("\n[find_move] NULL == moves.\n");
         return NULL;
     }
 
@@ -237,11 +230,11 @@ void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
         return;
     }
 
-    printf("\nmoves_node->position %d\n",moves_node->position);
+    // printf("\nmoves_node->position %d\n",moves_node->position);
     // 查找键是否已存在
     findNode = find_move(*hashTable,moves_node->position); 
     if (findNode == NULL) {
-        printf("key:%d not found, create pairs.\n",moves_node->position);
+        // printf("key:%d not found, create pairs.\n",moves_node->position);
         // 如果不存在，则创建新条目
         // entry = (MoveHash_t *)malloc(sizeof(MoveHash_t));
         // entry->position = moves_node->position;
@@ -253,7 +246,7 @@ void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
         LL_APPEND(*hashTable,moves_node);
     }
     else{
-        printf("key:%d found, merge lists.\n",moves_node->position);
+        // printf("key:%d found, merge lists.\n",moves_node->position);
         // merge_flip_lists(&entry->moves_pair.flip_list,moves_node->flip_list);
         LL_CONCAT(findNode->flip_list,moves_node->flip_list);
     }
