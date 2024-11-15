@@ -226,7 +226,7 @@ int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list) {
 
 
 
-void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node) {
+void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
     // MovePair_t *entry = NULL;
     MovePair_t *findNode = NULL;
 
@@ -237,7 +237,7 @@ void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node) {
 
     printf("\nmoves_node->position %d\n",moves_node->position);
     // 查找键是否已存在
-    findNode = find_move(hashTable,moves_node->position); 
+    findNode = find_move(*hashTable,moves_node->position); 
     if (findNode == NULL) {
         printf("key:%d not found, create pairs.\n",moves_node->position);
         // 如果不存在，则创建新条目
@@ -248,7 +248,7 @@ void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node) {
         // // merge_flip_lists(&entry->moves_pair.flip_list,moves_node->flip_list);
 
         // HASH_ADD_INT(*hashTable, position,entry);
-        LL_APPEND(hashTable,moves_node);
+        LL_APPEND(*hashTable,moves_node);
     }
     else{
         printf("key:%d found, merge lists.\n",moves_node->position);

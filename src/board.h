@@ -30,7 +30,7 @@ void othelloBoard_init(othelloBoard *board);
 void othelloBoard_displayBoard(othelloBoard *board, int color);
 void othelloBoard_displayLegalMoves(othelloBoard *board);
 void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pMoves);
-void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t *pMoves);
+void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t **pMoves);
 void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move);
 bool othelloBoard_terminalState(othelloBoard *board);
 void othelloBoard_index2coord(int index, int *colNum, int *rowNum);

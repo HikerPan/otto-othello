@@ -47,7 +47,7 @@ void clear_moves(MovePair_t *moves);
 void print_moves(MovePair_t *moves);
 int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
 // void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node);
-void insert_moves(MovePair_t *hashTable, MovePair_t *moves_node);
+void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node);
 int size_moves(MovePair_t *hashTable);
 MovePair_t *find_next(MovePair_t *moves, MovePair_t *current);
 

@@ -110,18 +110,18 @@ void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pM
     for (int i = 0; i < OTHELLO_BOARD_SIZE; i++) {
         if (board->positions[i] == color) {
             // 检查行
-            othelloBoard_findLegalMoveInDirection(board, i, color, -1, *pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 1, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -1, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 1, pMoves);
 
             // 检查列
-            othelloBoard_findLegalMoveInDirection(board, i, color, -8, *pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 8, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -8, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 8, pMoves);
 
             // 检查对角线
-            othelloBoard_findLegalMoveInDirection(board, i, color, -9, *pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 9, *pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, -7, *pMoves);
-            othelloBoard_findLegalMoveInDirection(board, i, color, 7, *pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -9, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 9, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, -7, pMoves);
+            othelloBoard_findLegalMoveInDirection(board, i, color, 7, pMoves);
         }
     }
 }
@@ -140,7 +140,7 @@ void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pM
  * @param direction 移动方向（正数或负数，表示向上、向下、向左或向右移动）
  * @param pMoves 指向存储合法移动和翻转棋子列表的哈希表的指针
  */
-void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t *pMoves) {
+void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t **pMoves) {
     // 初始化一个合法的移动和翻转的棋子列表
     MovePair_t *legalMove = NULL;
     IntListNode_t *flippedDiscs = NULL;
@@ -166,7 +166,7 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
             list_push_front(&flippedDiscs, i);
             continue;
         } else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {    //遇到空位，且翻转列表不为空
-            MovePair_t *it = find_move(pMoves, i);
+            MovePair_t *it = find_move(*pMoves, i);
 
             // if (it != NULL && it != find_end(pMoves)) {
             if (it != NULL) {
