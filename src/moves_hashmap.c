@@ -129,7 +129,7 @@ void delete_move(MovePair_t *moves, int position) {
     MovePair_t *nextMove = NULL;
 
     if(NULL == moves){
-        printf("\n[delete_move] NULL == moves.\n");
+        // printf("\n[delete_move] NULL == moves.\n");
         return;
     }
 
@@ -150,15 +150,22 @@ void delete_move(MovePair_t *moves, int position) {
 void clear_moves(MovePair_t **moves) {
     MovePair_t *curMove = NULL;
     MovePair_t *nextMove = NULL;
+    IntListNode_t *curList = NULL;
+    IntListNode_t *nextList = NULL;
 
-    if(NULL == moves){
-        printf("\n[clear_moves] NULL == moves.\n");
+    if(NULL == *moves){
+        // printf("\n[clear_moves] NULL == moves.\n");
         return ;
     }
 
     LL_FOREACH_SAFE(*moves,curMove,nextMove){
         if(NULL != curMove)
         {
+            // LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
+            //     LL_DELETE(curMove->flip_list,curList);
+            //     // free(curList);
+            //     // curList = NULL;
+            // }
             LL_DELETE(*moves,curMove);
             // free(curMove);
             // curMove = NULL;

@@ -205,7 +205,7 @@ void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move) 
     IntListNode_t *flippedDiscs = move->flip_list;
 
     if (flippedDiscs == NULL) {
-        printf("flippedDiscs is NULL\n");
+        // printf("flippedDiscs is NULL\n");
         return;
     }
 

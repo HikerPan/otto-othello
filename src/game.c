@@ -20,11 +20,14 @@
 void othelloGame_init(othelloGame *game) {
     
     othelloBoard_init(&game->board);
-    
+     
     // memset(game->board.positions, 0, OTHELLO_BOARD_SIZE * sizeof(int));
     memset(game->moveHistory, 0, MAX_MOVE_HISTORY_LEN * sizeof(char));
     game->toMove = 1;
     game->gameOver = false;
+
+    memset(&game->blackPlayer,0,sizeof(othelloPlayer));
+    memset(&game->whitePlayer,0,sizeof(othelloPlayer));
 }
 
 // Initialize new game

@@ -422,6 +422,7 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
     while (1) {
         // 如果已评估完所有子节点
         if (player->nodeStack[depth].moveIterator == player->nodeStack[depth].lastMove) {
+            // 回溯到根节点
             if (depth-- == 0) {
                 if (player->nodeStack[1].score > player->nodeStack[0].score
                         || (player->nodeStack[1].score == player->nodeStack[0].score
@@ -437,10 +438,11 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                 break;
             }
 
+            
             if (player->nodeStack[depth].isMaxNode) {
+                // 极大值节点
                 if (player->nodeStack[depth+1].score > player->nodeStack[depth].score
-                        || (player->nodeStack[depth+1].score == player->nodeStack[depth].score
-                            && rand() % 2 == 0)) {
+                        || (player->nodeStack[depth+1].score == player->nodeStack[depth].score&& rand() % 2 == 0)) {
                     player->nodeStack[depth].score = player->nodeStack[depth+1].score;
                     if (depth == 0) {
                         bestMove = player->nodeStack[0].prevIterator;
@@ -450,7 +452,8 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                 if (player->nodeStack[depth].score > player->nodeStack[depth].alpha) {
                     player->nodeStack[depth].alpha = player->nodeStack[depth].score;
                 }
-            } else {
+            } else { 
+                // 极小值节点
                 if (player->nodeStack[depth+1].score < player->nodeStack[depth].score) {
                     player->nodeStack[depth].score = player->nodeStack[depth+1].score;
                 }
@@ -462,6 +465,7 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         }
         // 如果可以剪枝
         else if (player->nodeStack[depth].beta <= player->nodeStack[depth].alpha) {
+            // 回溯到根节点
             if (depth-- == 0) {
                 if (player->nodeStack[1].score > player->nodeStack[0].score
                     || (player->nodeStack[1].score == player->nodeStack[0].score
@@ -479,8 +483,7 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
 
             if (player->nodeStack[depth].isMaxNode) {
                 if (player->nodeStack[depth+1].score > player->nodeStack[depth].score
-                    || (player->nodeStack[depth+1].score == player->nodeStack[depth].score
-                        && rand() % 2 == 0)) {
+                    || (player->nodeStack[depth+1].score == player->nodeStack[depth].score&& rand() % 2 == 0)) {
                     player->nodeStack[depth].score = player->nodeStack[depth+1].score - 1;
                     if (depth == 0) {
                         bestMove = player->nodeStack[0].prevIterator;
@@ -504,7 +507,7 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         else {
             // 生成下一个节点，增加迭代器
             // player->nodeStack[depth+1].board = player->nodeStack[depth].board;
-            player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
+                player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
             memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
             othelloBoard_updateBoard(player->nodeStack[depth+1].board,
                                     (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
