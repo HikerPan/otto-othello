@@ -28,7 +28,7 @@ typedef struct othelloPlayer {
         int alpha;
         int beta;
         int score;
-        othelloBoard *board;
+        othelloBoard board;
         MovePair_t *prevIterator;
         MovePair_t *moveIterator;
         MovePair_t *lastMove;

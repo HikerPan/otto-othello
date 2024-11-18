@@ -105,7 +105,7 @@ void othelloBoard_displayLegalMoves(othelloBoard *board) {
  */
 void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pMoves) {
     // 清除上一手棋的合法走法
-    clear_moves(pMoves);
+    // clear_moves(pMoves);
 
     for (int i = 0; i < OTHELLO_BOARD_SIZE; i++) {
         if (board->positions[i] == color) {

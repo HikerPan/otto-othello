@@ -144,112 +144,6 @@ MovePair_t *othelloPlayer_humanMove(othelloPlayer *player,MovePair_t *legalMoves
  * @param coord 坐标字符串，格式为'列号行号'，列号为大写或小写字母（A-H），行号为数字（1-8）
  * @return 索引值，如果坐标无效，则返回-1
  */
-// int othelloPlayer::coord2index(std::string coord) {
-// int othelloPlayer::coord2index(char *coord) {
-
-//     if(NULL == coord)
-//     {
-//         printf("[coord2index] NULL == coord");
-//         return -1;
-//     }
-//     // 检查坐标字符串长度是否为2
-//     // if (coord.length() != 2) {
-//     if (strlen(coord) != 2) {
-//         return -1;
-//     }
-
-//     int index = 0;
-//     // 根据坐标的第一个字符确定行索引
-//     // switch(coord.at(0)) {
-//     switch(coord[0]) {
-//         case 'A':
-//         case 'a':
-//             // A或a代表第一行
-//             index = 0;
-//             break;
-//         case 'B':
-//         case 'b':
-//             // B或b代表第二行
-//             index = 1;
-//             break;
-//         case 'C':
-//         case 'c':
-//             // C或c代表第三行
-//             index = 2;
-//             break;
-//         case 'D':
-//         case 'd':
-//             // D或d代表第四行
-//             index = 3;
-//             break;
-//         case 'E':
-//         case 'e':
-//             // E或e代表第五行
-//             index = 4;
-//             break;
-//         case 'F':
-//         case 'f':
-//             // F或f代表第六行
-//             index = 5;
-//             break;
-//         case 'G':
-//         case 'g':
-//             // G或g代表第七行
-//             index = 6;
-//             break;
-//         case 'H':
-//         case 'h':
-//             // H或h代表第八行
-//             index = 7;
-//             break;
-//         default:
-//             // 如果第一个字符不在A-H之间，则返回-1
-//             return -1;
-//     }
-
-//     // 根据坐标的第二个字符确定列索引
-//     // switch(coord.at(1)) {
-//     switch(coord[1]) {
-//         case '1':
-//             // 1代表第一列
-//             index += 0;
-//             break;
-//         case '2':
-//             // 2代表第二列
-//             index += 8;
-//             break;
-//         case '3':
-//             // 3代表第三列
-//             index += 16;
-//             break;
-//         case '4':
-//             // 4代表第四列
-//             index += 24;
-//             break;
-//         case '5':
-//             // 5代表第五列
-//             index += 32;
-//             break;
-//         case '6':
-//             // 6代表第六列
-//             index += 40;
-//             break;
-//         case '7':
-//             // 7代表第七列
-//             index += 48;
-//             break;
-//         case '8':
-//             // 8代表第八列
-//             index += 56;
-//             break;
-//         default:
-//             // 如果第二个字符不在1-8之间，则返回-1
-//             return -1;
-//     }
-
-//     return index;
-// }
-
 int othelloPlayer_coord2index(char *coord) {
     if (coord == NULL || strlen(coord) != 2) {
         return -1;
@@ -414,14 +308,15 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
     player->nodeStack[0].alpha = INT_MIN;
     player->nodeStack[0].beta = INT_MAX;
     player->nodeStack[0].score = INT_MIN;
-    player->nodeStack[0].board = board;
-    player->nodeStack[0].moveIterator = find_begin(player->nodeStack[0].board->moves);
+    // player->nodeStack[0].board = board;
+    memcpy(&player->nodeStack[0].board,board,sizeof(othelloBoard));
+    player->nodeStack[0].moveIterator = find_begin(player->nodeStack[0].board.moves);
     player->nodeStack[0].prevIterator = player->nodeStack[0].moveIterator;
-    player->nodeStack[0].lastMove = find_end(player->nodeStack[0].board->moves);
+    player->nodeStack[0].lastMove = find_end(player->nodeStack[0].board.moves);
 
     int depth = 0;
     int leafScore = 0;
-    MovePair_t *bestMove = find_begin(player->nodeStack[0].board->moves);
+    MovePair_t *bestMove = find_begin(player->nodeStack[0].board.moves);
 
     while (1) {
         // 如果已评估完所有子节点
@@ -511,50 +406,51 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         else {
             // 生成下一个节点，增加迭代器
             // player->nodeStack[depth+1].board = player->nodeStack[depth].board;
-            if(NULL == player->nodeStack[depth+1].board){
-                player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
-                if(NULL == player->nodeStack[depth+1].board){
-                    printf("\nmalloc failed\n");
-                    break;
-                }
-                memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
-            }
+            // if(NULL == player->nodeStack[depth+1].board){
+            //     player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
+            //     if(NULL == player->nodeStack[depth+1].board){
+            //         printf("\nmalloc failed\n");
+            //         break;
+            //     }
+            //     memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
+            // }
             
-            
-            othelloBoard_updateBoard(player->nodeStack[depth+1].board,
+            memcpy(&player->nodeStack[depth+1].board,&player->nodeStack[depth].board,sizeof(othelloBoard));
+            othelloBoard_updateBoard(&player->nodeStack[depth+1].board,
                                     (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                     player->nodeStack[depth].moveIterator);
             player->nodeStack[depth].prevIterator = player->nodeStack[depth].moveIterator;
-            player->nodeStack[depth].moveIterator = find_next(player->nodeStack[depth].board->moves, player->nodeStack[depth].prevIterator);
+            player->nodeStack[depth].moveIterator = find_next(player->nodeStack[depth].board.moves, player->nodeStack[depth].prevIterator);
 
             // 如果下一个深度未达到深度限制
             if (depth + 1 < depthLimit) {
                 depth++;
-                if(NULL == player->nodeStack[depth].board){
-                    player->nodeStack[depth].board = (othelloBoard *)malloc(sizeof(othelloBoard));
-                    if(NULL == player->nodeStack[depth].board)
-                    {
-                        printf("\nmalloc  for depth failed\n");
-                        break;
-                    }
-                    memcpy(player->nodeStack[depth].board,player->nodeStack[depth-1].board,sizeof(othelloBoard));
-                }
+                // if(NULL == player->nodeStack[depth].board){
+                //     player->nodeStack[depth].board = (othelloBoard *)malloc(sizeof(othelloBoard));
+                //     if(NULL == player->nodeStack[depth].board)
+                //     {
+                //         printf("\nmalloc  for depth failed\n");
+                //         break;
+                //     }
+                //     memcpy(player->nodeStack[depth].board,player->nodeStack[depth-1].board,sizeof(othelloBoard));
+                // }
                 
                 
-                
+                memcpy(&player->nodeStack[depth].board,&player->nodeStack[depth-1].board,sizeof(othelloBoard));
                 player->nodeStack[depth].isMaxNode = !player->nodeStack[depth-1].isMaxNode;
                 player->nodeStack[depth].score = (player->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 player->nodeStack[depth].alpha = player->nodeStack[depth-1].alpha;
                 player->nodeStack[depth].beta = player->nodeStack[depth-1].beta;
-                othelloBoard_findLegalMoves(player->nodeStack[depth].board,
+                // clear_moves(&player->nodeStack[depth].board.moves);
+                othelloBoard_findLegalMoves(&player->nodeStack[depth].board,
                                         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
-                                        &player->nodeStack[depth].board->moves);
-                player->nodeStack[depth].moveIterator = find_begin(player->nodeStack[depth].board->moves);
+                                        &player->nodeStack[depth].board.moves);
+                player->nodeStack[depth].moveIterator = find_begin(player->nodeStack[depth].board.moves);
                 player->nodeStack[depth].prevIterator = player->nodeStack[depth].moveIterator;
-                player->nodeStack[depth].lastMove = find_end(player->nodeStack[depth].board->moves);
+                player->nodeStack[depth].lastMove = find_end(player->nodeStack[depth].board.moves);
             }
             else {
-                leafScore = othelloHeuristic_evaluate(player->nodeStack[depth+1].board, player->color);
+                leafScore = othelloHeuristic_evaluate(&player->nodeStack[depth+1].board, player->color);
                 
 
                 if (player->nodeStack[depth].isMaxNode) {
@@ -602,14 +498,6 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         // }
     }
 
-    for(size_t i = 1;i<64;i++)
-    {
-        if(NULL != player->nodeStack[i].board)
-        {
-            free(player->nodeStack[i].board);
-            player->nodeStack[i].board = NULL;
-        }
-    }
 
     return bestMove;
 }

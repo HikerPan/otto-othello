@@ -35,6 +35,7 @@ int main() {
     initializeGame(newGame, &game, &blackComputer, &whiteComputer, &timeLimit);
 
     if (game.toMove == -1) {
+        clear_moves(&game.board.moves);
         othelloBoard_findLegalMoves(&game.board,-1, &game.board.moves);
         othelloBoard_displayBoard(&game.board,-1);
         othelloBoard_displayLegalMoves(&game.board);
@@ -43,7 +44,7 @@ int main() {
     }
 
     while (!game.gameOver) {
-
+        clear_moves(&game.board.moves);
         othelloBoard_findLegalMoves(&game.board,1, &game.board.moves);
         othelloBoard_displayBoard(&game.board,1);
         othelloBoard_displayLegalMoves(&game.board);
@@ -53,7 +54,8 @@ int main() {
         if (game.gameOver) {
             break;
         }
-
+        
+        clear_moves(&game.board.moves);
         othelloBoard_findLegalMoves(&game.board,-1, &game.board.moves);
         othelloBoard_displayBoard(&game.board,-1);
         othelloBoard_displayLegalMoves(&game.board);
