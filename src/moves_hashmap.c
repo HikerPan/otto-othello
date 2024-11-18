@@ -161,14 +161,14 @@ void clear_moves(MovePair_t **moves) {
     LL_FOREACH_SAFE(*moves,curMove,nextMove){
         if(NULL != curMove)
         {
-            // LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
-            //     LL_DELETE(curMove->flip_list,curList);
-            //     // free(curList);
-            //     // curList = NULL;
-            // }
+            LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
+                LL_DELETE(curMove->flip_list,curList);
+                free(curList);
+                curList = NULL;
+            }
             LL_DELETE(*moves,curMove);
-            // free(curMove);
-            // curMove = NULL;
+            free(curMove);
+            curMove = NULL;
         }    
     }
 

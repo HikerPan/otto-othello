@@ -321,6 +321,10 @@ MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board
                 move = othelloPlayer_depthLimitedAlphaBeta(player, board, depthLimit, startTime, board->timeLimit);
                 if (move == NULL || move->position == -1) {
                     printf("\tSearch aborted.\n");
+                    if(move){
+                        free(move);
+                        move = NULL;
+                    }
                     break;
                 } else {
                     bestMove = move;
@@ -507,8 +511,16 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         else {
             // 生成下一个节点，增加迭代器
             // player->nodeStack[depth+1].board = player->nodeStack[depth].board;
+            if(NULL == player->nodeStack[depth+1].board){
                 player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
-            memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
+                if(NULL == player->nodeStack[depth+1].board){
+                    printf("\nmalloc failed\n");
+                    break;
+                }
+                memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
+            }
+            
+            
             othelloBoard_updateBoard(player->nodeStack[depth+1].board,
                                     (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                     player->nodeStack[depth].moveIterator);
@@ -518,7 +530,18 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
             // 如果下一个深度未达到深度限制
             if (depth + 1 < depthLimit) {
                 depth++;
-
+                if(NULL == player->nodeStack[depth].board){
+                    player->nodeStack[depth].board = (othelloBoard *)malloc(sizeof(othelloBoard));
+                    if(NULL == player->nodeStack[depth].board)
+                    {
+                        printf("\nmalloc  for depth failed\n");
+                        break;
+                    }
+                    memcpy(player->nodeStack[depth].board,player->nodeStack[depth-1].board,sizeof(othelloBoard));
+                }
+                
+                
+                
                 player->nodeStack[depth].isMaxNode = !player->nodeStack[depth-1].isMaxNode;
                 player->nodeStack[depth].score = (player->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 player->nodeStack[depth].alpha = player->nodeStack[depth-1].alpha;
@@ -566,14 +589,25 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                             (currentTime.tv_nsec - startTime.tv_nsec) / 1e9;
 
         // 如果时间即将耗尽，则返回失败标志
-        if (elapsedTime > 0.998 * timeLimit) {
-            MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
-            if (move == NULL) {
-                printf("malloc fail\n");
-                return NULL;
-            }
-            move->position = -1;
-            return move;
+        // if (elapsedTime > 0.998 * timeLimit) {
+        //     MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
+        //     if (move == NULL) {
+        //         printf("malloc fail\n");
+        //         return NULL;
+        //     }
+        //     move->position = -1;
+
+            //    bestMove = move;
+        //     return move;
+        // }
+    }
+
+    for(size_t i = 1;i<64;i++)
+    {
+        if(NULL != player->nodeStack[i].board)
+        {
+            free(player->nodeStack[i].board);
+            player->nodeStack[i].board = NULL;
         }
     }
 

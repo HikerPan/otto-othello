@@ -325,6 +325,7 @@ void othelloGame_move(othelloGame *game, int color) {
         move = othelloPlayer_move(&game->whitePlayer, &game->board, game->board.moves, game->board.passes[0], game->moveHistory);
     }
 
+    // if ((!game->board.passes[0])&&(NULL != move)) {
     if (!game->board.passes[0]) {
         othelloBoard_updateBoard(&game->board, color, move);
     }
