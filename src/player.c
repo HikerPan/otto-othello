@@ -285,6 +285,21 @@ float othelloPlayer_stopTimer(struct timespec startTime) {
     return elapsedSeconds;
 }
 
+void copy_bestmove(MovePair_t **bestMove, MovePair_t *move)
+{
+    if(*bestMove){
+        clear_moves(bestMove);
+        *bestMove = NULL;
+    }
+    if(move){
+        // *bestMove = (MovePair_t *)malloc(sizeof(MovePair_t));
+        copy_moves(bestMove,move);
+        // (*bestMove)->flip_list = move->flip_list;
+        // (*bestMove)->position = move->position;
+    }
+        
+}
+
 // Performs depth-limited minimax search with alpha-beta pruning
 // Implemented iteratively to avoid recursion overhead
 // Returns move for square -1 if time runs out
@@ -310,13 +325,18 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
     player->nodeStack[0].score = INT_MIN;
     // player->nodeStack[0].board = board;
     memcpy(&player->nodeStack[0].board,board,sizeof(othelloBoard));
+
+    player->nodeStack[0].board.moves = NULL;
+    copy_moves(&player->nodeStack[0].board.moves,board->moves);
+
     player->nodeStack[0].moveIterator = find_begin(player->nodeStack[0].board.moves);
     player->nodeStack[0].prevIterator = player->nodeStack[0].moveIterator;
     player->nodeStack[0].lastMove = find_end(player->nodeStack[0].board.moves);
 
     int depth = 0;
     int leafScore = 0;
-    MovePair_t *bestMove = find_begin(player->nodeStack[0].board.moves);
+    // MovePair_t *bestMove = find_begin(player->nodeStack[0].board.moves);
+    MovePair_t *bestMove = NULL;
 
     while (1) {
         // 如果已评估完所有子节点
@@ -327,16 +347,17 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                         || (player->nodeStack[1].score == player->nodeStack[0].score
                             && rand() % 2 == 0)) {
                     player->nodeStack[0].score = player->nodeStack[1].score;
-                    bestMove = player->nodeStack[0].prevIterator;
+                    // bestMove = player->nodeStack[0].prevIterator;
+                    copy_bestmove(&bestMove,player->nodeStack[0].prevIterator);
                 }
 
                 if (player->nodeStack[0].score > player->nodeStack[0].alpha) {
                     player->nodeStack[0].alpha = player->nodeStack[0].score;
                 }
-
+                
+                clear_moves(&player->nodeStack[1].board.moves);
                 break;
             }
-
             
             if (player->nodeStack[depth].isMaxNode) {
                 // 极大值节点
@@ -344,7 +365,8 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                         || (player->nodeStack[depth+1].score == player->nodeStack[depth].score&& rand() % 2 == 0)) {
                     player->nodeStack[depth].score = player->nodeStack[depth+1].score;
                     if (depth == 0) {
-                        bestMove = player->nodeStack[0].prevIterator;
+                        // bestMove = player->nodeStack[0].prevIterator;
+                        copy_bestmove(&bestMove,player->nodeStack[0].prevIterator);
                     }
                 }
 
@@ -361,6 +383,8 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                     player->nodeStack[depth].beta = player->nodeStack[depth].score;
                 }
             }
+
+            clear_moves(&player->nodeStack[depth+1].board.moves);
         }
         // 如果可以剪枝
         else if (player->nodeStack[depth].beta <= player->nodeStack[depth].alpha) {
@@ -370,12 +394,15 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                     || (player->nodeStack[1].score == player->nodeStack[0].score
                         && rand() % 2 == 0)) {
                     player->nodeStack[0].score = player->nodeStack[1].score;
-                    bestMove = player->nodeStack[0].prevIterator;
+                    // bestMove = player->nodeStack[0].prevIterator;
+                    copy_bestmove(&bestMove,player->nodeStack[0].prevIterator);
                 }
 
                 if (player->nodeStack[0].score > player->nodeStack[0].alpha) {
                     player->nodeStack[0].alpha = player->nodeStack[0].score;
                 }
+
+                clear_moves(&player->nodeStack[1].board.moves);
 
                 break;
             }
@@ -385,7 +412,8 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                     || (player->nodeStack[depth+1].score == player->nodeStack[depth].score&& rand() % 2 == 0)) {
                     player->nodeStack[depth].score = player->nodeStack[depth+1].score - 1;
                     if (depth == 0) {
-                        bestMove = player->nodeStack[0].prevIterator;
+                        // bestMove = player->nodeStack[0].prevIterator;
+                        copy_bestmove(&bestMove,player->nodeStack[0].prevIterator);
                     }
                 }
 
@@ -402,46 +430,41 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                     player->nodeStack[depth].beta = player->nodeStack[depth].score;
                 }
             }
+
+            clear_moves(&player->nodeStack[depth+1].board.moves);
         }
         else {
-            // 生成下一个节点，增加迭代器
-            // player->nodeStack[depth+1].board = player->nodeStack[depth].board;
-            // if(NULL == player->nodeStack[depth+1].board){
-            //     player->nodeStack[depth+1].board = (othelloBoard *)malloc(sizeof(othelloBoard));
-            //     if(NULL == player->nodeStack[depth+1].board){
-            //         printf("\nmalloc failed\n");
-            //         break;
-            //     }
-            //     memcpy(player->nodeStack[depth+1].board,player->nodeStack[depth].board,sizeof(othelloBoard));
-            // }
+            // printf("[AlphaBeta] depth %d \n",depth);
+            // 生成下一个节点，增加迭代器      
+
+            player->nodeStack[depth+1].board.discsOnBoard = player->nodeStack[depth].board.discsOnBoard;
+            player->nodeStack[depth+1].board.passes[0] = player->nodeStack[depth].board.passes[0];
+            player->nodeStack[depth+1].board.passes[1] = player->nodeStack[depth].board.passes[1];
+            player->nodeStack[depth+1].board.timeLimit = player->nodeStack[depth].board.timeLimit;
+            memcpy(player->nodeStack[depth+1].board.positions,player->nodeStack[depth].board.positions,sizeof(int)*OTHELLO_BOARD_SIZE);
+            if(NULL == player->nodeStack[depth+1].board.moves){
+                copy_moves(&player->nodeStack[depth+1].board.moves,player->nodeStack[depth].board.moves);
+            }
             
-            memcpy(&player->nodeStack[depth+1].board,&player->nodeStack[depth].board,sizeof(othelloBoard));
             othelloBoard_updateBoard(&player->nodeStack[depth+1].board,
                                     (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                     player->nodeStack[depth].moveIterator);
             player->nodeStack[depth].prevIterator = player->nodeStack[depth].moveIterator;
             player->nodeStack[depth].moveIterator = find_next(player->nodeStack[depth].board.moves, player->nodeStack[depth].prevIterator);
+            // printf("[AlphaBeta] isMaxNode %d, ",player->nodeStack[depth].isMaxNode,);
 
             // 如果下一个深度未达到深度限制
             if (depth + 1 < depthLimit) {
-                depth++;
-                // if(NULL == player->nodeStack[depth].board){
-                //     player->nodeStack[depth].board = (othelloBoard *)malloc(sizeof(othelloBoard));
-                //     if(NULL == player->nodeStack[depth].board)
-                //     {
-                //         printf("\nmalloc  for depth failed\n");
-                //         break;
-                //     }
-                //     memcpy(player->nodeStack[depth].board,player->nodeStack[depth-1].board,sizeof(othelloBoard));
-                // }
+                depth++;            
                 
-                
-                memcpy(&player->nodeStack[depth].board,&player->nodeStack[depth-1].board,sizeof(othelloBoard));
+                // memcpy(&player->nodeStack[depth].board,&player->nodeStack[depth-1].board,sizeof(othelloBoard));
                 player->nodeStack[depth].isMaxNode = !player->nodeStack[depth-1].isMaxNode;
                 player->nodeStack[depth].score = (player->nodeStack[depth].isMaxNode ? INT_MIN : INT_MAX);
                 player->nodeStack[depth].alpha = player->nodeStack[depth-1].alpha;
                 player->nodeStack[depth].beta = player->nodeStack[depth-1].beta;
-                // clear_moves(&player->nodeStack[depth].board.moves);
+                if(NULL != player->nodeStack[depth].board.moves){
+                    clear_moves(&player->nodeStack[depth].board.moves);
+                }
                 othelloBoard_findLegalMoves(&player->nodeStack[depth].board,
                                         (player->nodeStack[depth].isMaxNode ? player->color : -player->color),
                                         &player->nodeStack[depth].board.moves);
@@ -451,13 +474,14 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
             }
             else {
                 leafScore = othelloHeuristic_evaluate(&player->nodeStack[depth+1].board, player->color);
-                
+                              
 
                 if (player->nodeStack[depth].isMaxNode) {
                     if (leafScore > player->nodeStack[depth].score) {
                         player->nodeStack[depth].score = leafScore;
                         if (depth == 0) {
-                            bestMove = player->nodeStack[0].prevIterator;
+                            // bestMove = player->nodeStack[0].prevIterator;
+                            copy_bestmove(&bestMove,player->nodeStack[0].prevIterator);
                         }
                     }
 
@@ -491,13 +515,12 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
         //         printf("malloc fail\n");
         //         return NULL;
         //     }
+        //     // printf("[depthLimitedAlphaBeta] malloc abort move at [ 0x%x ]\n",move);
         //     move->position = -1;
-
-            //    bestMove = move;
+        //     // bestMove = NULL;    
         //     return move;
         // }
     }
-
 
     return bestMove;
 }

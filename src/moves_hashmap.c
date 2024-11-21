@@ -31,6 +31,7 @@ int move_hash_empty(MovePair_t *head) {
 void list_push_front(IntListNode_t **head, int flip_position) {
     IntListNode_t *node = (IntListNode_t *)malloc(sizeof(IntListNode_t));
     if (node) {
+        // printf("[list_push_front] malloc flip node at [ 0x%x ]\n",node);
         node->flip_position = flip_position;
         node->next = NULL;
         LL_PREPEND(*head, node);  // 将节点添加到链表头部
@@ -146,6 +147,8 @@ void delete_move(MovePair_t *moves, int position) {
     return;   
 }
 
+
+
 // 清空所有走法
 void clear_moves(MovePair_t **moves) {
     MovePair_t *curMove = NULL;
@@ -163,10 +166,12 @@ void clear_moves(MovePair_t **moves) {
         {
             LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
                 LL_DELETE(curMove->flip_list,curList);
+                // printf("[clear_moves] free flip list [ 0x%x ].\n",curList);
                 free(curList);
                 curList = NULL;
             }
             LL_DELETE(*moves,curMove);
+            // printf("[clear_moves] free Move list [ 0x%x ].\n",curMove);
             free(curMove);
             curMove = NULL;
         }    
@@ -261,11 +266,38 @@ void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
     return;
 }
 
+void copy_moves(MovePair_t **targetMoves, MovePair_t *srcMove)
+{
+    MovePair_t *curMove = NULL;
+    MovePair_t *nextMove = NULL;
+    MovePair_t *newMove = NULL;
+
+    IntListNode_t *curList = NULL;
+    IntListNode_t *nextList = NULL;
+    
+    LL_FOREACH_SAFE(srcMove,curMove,nextMove){
+        if(NULL != curMove){
+            newMove = (MovePair_t *)malloc(sizeof(MovePair_t));
+            if(NULL != newMove){
+                newMove->position = curMove->position;
+                newMove->flip_list = NULL;
+                LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
+                    if(NULL != curList){
+                        list_push_front(&newMove->flip_list,curList->flip_position);
+                    }
+                }
+            }
+            insert_moves(targetMoves,newMove);
+        }
+    }
+}
+
 // 添加元素到集合
 void add_to_set(IntSetNode **set, int value) {
     IntSetNode *node = NULL;
     HASH_FIND_INT(*set, &value, node);
     if (node == NULL) {
+        // printf("[add_to_set] malloc set node at [ 0x%x ]\n",node);
         node = (IntSetNode *)malloc(sizeof(IntSetNode));
         node->key = value;
         HASH_ADD_INT(*set, key, node);
@@ -285,6 +317,7 @@ void remove_from_set(IntSetNode **set, int value) {
     HASH_FIND_INT(*set, &value, node);
     if (node != NULL) {
         HASH_DEL(*set, node);
+        // printf("[remove_from_set] free set node at [ 0x%x ]\n",node);
         free(node);
     }
 }

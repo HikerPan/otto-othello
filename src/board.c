@@ -177,7 +177,7 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
                     printf("malloc failed\n");
                     return;
                 }
-
+                // printf("[findLegalMoveInDirection] malloc move node at [ 0x%x ]\n",legalMove);
                 legalMove->position = i;
                 legalMove->flip_list = flippedDiscs;
                 insert_moves(pMoves, legalMove);
@@ -200,9 +200,18 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
  *             - move.second 表示翻转的棋子列表
  */
 void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move) {
+    int square = -1;
+    IntListNode_t *flippedDiscs = NULL;
+
+    // if(NULL == board || NULL == move)
+    // {
+    //     printf("error pointer.\n");
+    //     return;
+    // }
+
     // 获取移动的位置
-    int square = move->position;
-    IntListNode_t *flippedDiscs = move->flip_list;
+    square = move->position;
+    flippedDiscs = move->flip_list;
 
     if (flippedDiscs == NULL) {
         // printf("flippedDiscs is NULL\n");

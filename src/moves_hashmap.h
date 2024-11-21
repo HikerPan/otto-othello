@@ -50,7 +50,7 @@ int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list);
 void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node);
 int size_moves(MovePair_t *hashTable);
 MovePair_t *find_next(MovePair_t *moves, MovePair_t *current);
-
+void copy_moves(MovePair_t **targetMoves, MovePair_t *srcMove);
 void add_to_set(IntSetNode **set, int value);
 int is_in_set(IntSetNode *set, int value);
 void remove_from_set(IntSetNode **set, int value);

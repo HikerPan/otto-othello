@@ -23,6 +23,7 @@ typedef struct {
     float timeLimit;                   // 时间限制
     bool passes[2];                    // 记录最近两次是否为 pass
     MovePair_t *moves;                 // 哈希表存储所有可能的走法
+    bool initFlag;
 } othelloBoard;
 
 // 函数声明
