@@ -12,8 +12,26 @@
  * @param head 链表头节点指针
  * @return 如果链表为空返回 1，否则返回 0
  */
-int flip_list_empty(IntListNode_t *head) {
-    return head == NULL;
+// int flip_list_empty(IntListNode_t *head) {
+//     return head == NULL;
+// }
+
+int flip_list_empty(uint8_t *flip_array) {
+    size_t count = 0;
+
+    if(NULL == flip_array)
+        return 1;
+    
+    for(size_t i = 0;i< MAX_FLIPS; i++){
+        if(flip_array[i]&(1<<7))
+            count++;
+        else
+            break;
+    }
+    if(0 == count)
+        return 1;
+    
+    return 0;
 }
 
 /**
@@ -28,13 +46,34 @@ int move_hash_empty(MovePair_t *head) {
     return head == NULL;
 }
 
-void list_push_front(IntListNode_t **head, int flip_position) {
-    IntListNode_t *node = (IntListNode_t *)malloc(sizeof(IntListNode_t));
-    if (node) {
-        // printf("[list_push_front] malloc flip node at [ 0x%x ]\n",node);
-        node->flip_position = flip_position;
-        node->next = NULL;
-        LL_PREPEND(*head, node);  // 将节点添加到链表头部
+void list_push_front(uint8_t *flip_array, int flip_position) {
+    bool is_used = false;
+    // IntListNode_t *node = (IntListNode_t *)malloc(sizeof(IntListNode_t));
+    // if (node) {
+    //     // printf("[list_push_front] malloc flip node at [ 0x%x ]\n",node);
+    //     node->flip_position = flip_position;
+    //     node->next = NULL;
+    //     LL_PREPEND(*head, node);  // 将节点添加到链表头部
+    // }
+
+    if(NULL == flip_array)
+    {
+        printf("\n[list_push_front] NULL == flip_array.\n");
+        return;
+    }
+
+    for(size_t i = 0; i< MAX_FLIPS; i++){
+        is_used = flip_array[i]&(1<<7);
+        if(!is_used){
+            flip_array[i] = 0;
+            flip_array[i] |= (flip_position&0x7F);
+            flip_array[i] |= (1<<7);
+            break;
+        }
+        else{
+            if(((flip_array[i]&0x7F) == flip_position))
+                break;
+        }
     }
 }
 
@@ -138,6 +177,7 @@ void delete_move(MovePair_t *moves, int position) {
         if((NULL != curMove)&&(position == curMove->position))
         {
             LL_DELETE(moves,curMove);
+            curMove = NULL;
             break;
         }    
     }
@@ -153,8 +193,8 @@ void delete_move(MovePair_t *moves, int position) {
 void clear_moves(MovePair_t **moves) {
     MovePair_t *curMove = NULL;
     MovePair_t *nextMove = NULL;
-    IntListNode_t *curList = NULL;
-    IntListNode_t *nextList = NULL;
+    // IntListNode_t *curList = NULL;
+    // IntListNode_t *nextList = NULL;
 
     if(NULL == *moves){
         // printf("\n[clear_moves] NULL == moves.\n");
@@ -164,14 +204,12 @@ void clear_moves(MovePair_t **moves) {
     LL_FOREACH_SAFE(*moves,curMove,nextMove){
         if(NULL != curMove)
         {
-            LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
-                LL_DELETE(curMove->flip_list,curList);
-                // printf("[clear_moves] free flip list [ 0x%x ].\n",curList);
-                free(curList);
-                curList = NULL;
-            }
+            // LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
+            //     LL_DELETE(curMove->flip_list,curList);
+            //     free(curList);
+            //     curList = NULL;
+            // }
             LL_DELETE(*moves,curMove);
-            // printf("[clear_moves] free Move list [ 0x%x ].\n",curMove);
             free(curMove);
             curMove = NULL;
         }    
@@ -190,22 +228,30 @@ int size_moves(MovePair_t *hashTable) {
 void print_moves(MovePair_t *moves) {
     MovePair_t *curMove = NULL;
     MovePair_t *nextMove = NULL;
-    IntListNode_t *node = NULL;
-    IntListNode_t *node_tmp;
+    // IntListNode_t *node = NULL;
+    // IntListNode_t *node_tmp;
     
     printf("\n\n[moves print start]\n");
     
     LL_FOREACH_SAFE(moves,curMove,nextMove){
         printf("[key] %d, ",curMove->position);
         printf("[flip_list]:");
-        if(NULL == curMove->flip_list)
+        if(NULL == curMove->flip_array)
         {
             printf("NULL\n");
             continue;
         }
-        LL_FOREACH_SAFE(curMove->flip_list, node, node_tmp){
-            printf(" %d ,",node->flip_position);
+        for(size_t i = 0;i<MAX_FLIPS;i++){
+            if(curMove->flip_array[i]&(1<<7))
+            {
+                printf(" %d ,",curMove->flip_array[i]&(0x7F));
+            }
+
+            break;
         }
+        // LL_FOREACH_SAFE(curMove->flip_list, node, node_tmp){
+        //     printf(" %d ,",node->flip_position);
+        // }
         printf("\n");
         
     }
@@ -215,15 +261,20 @@ void print_moves(MovePair_t *moves) {
 
 
 
-int merge_flip_lists(IntListNode_t **dest_list, IntListNode_t *source_list) {
+int merge_flip_lists(uint8_t *flip_target, uint8_t *flip_src) {
 
 
-    if(NULL == source_list){
-        printf("source_list can not be NULL\n");
+    if((NULL == flip_target)|| (NULL == flip_src)){
+        printf("moves can not be NULL\n");
         return 0;
     }
 
-    LL_CONCAT(*dest_list,source_list);
+    for(size_t i = 0;i<MAX_FLIPS;i++){
+        if((flip_src[i]&(1<<7))!=0)
+            list_push_front(flip_target,flip_src[i]);
+        else
+            break;
+    }
     
 
     return 1;
@@ -260,7 +311,17 @@ void insert_moves(MovePair_t **hashTable, MovePair_t *moves_node) {
     else{
         // printf("key:%d found, merge lists.\n",moves_node->position);
         // merge_flip_lists(&entry->moves_pair.flip_list,moves_node->flip_list);
-        LL_CONCAT(findNode->flip_list,moves_node->flip_list);
+        // LL_CONCAT(findNode->flip_list,moves_node->flip_list);
+
+        for(size_t i = 0;i<MAX_FLIPS;i++){
+            if(moves_node->flip_array[i]&(1<<7)){
+                list_push_front(findNode->flip_array,moves_node->flip_array[i]);
+            }
+
+            break;
+        }
+        
+
     }
     
     return;
@@ -272,20 +333,21 @@ void copy_moves(MovePair_t **targetMoves, MovePair_t *srcMove)
     MovePair_t *nextMove = NULL;
     MovePair_t *newMove = NULL;
 
-    IntListNode_t *curList = NULL;
-    IntListNode_t *nextList = NULL;
+    // IntListNode_t *curList = NULL;
+    // IntListNode_t *nextList = NULL;
     
     LL_FOREACH_SAFE(srcMove,curMove,nextMove){
         if(NULL != curMove){
             newMove = (MovePair_t *)malloc(sizeof(MovePair_t));
             if(NULL != newMove){
                 newMove->position = curMove->position;
-                newMove->flip_list = NULL;
-                LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
-                    if(NULL != curList){
-                        list_push_front(&newMove->flip_list,curList->flip_position);
-                    }
-                }
+                memcpy(newMove->flip_array,curMove->flip_array,MAX_FLIPS*sizeof(uint8_t));
+                // newMove->flip_list = NULL;
+                // LL_FOREACH_SAFE(curMove->flip_list,curList,nextList){
+                //     if(NULL != curList){
+                //         list_push_front(&newMove->flip_list,curList->flip_position);
+                //     }
+                // }
             }
             insert_moves(targetMoves,newMove);
         }

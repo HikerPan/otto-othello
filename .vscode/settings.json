@@ -54,6 +54,7 @@
         "typeinfo": "cpp",
         "map": "cpp",
         "uthash.h": "c",
-        "board.h": "c"
+        "board.h": "c",
+        "moves_hashmap.h": "c"
     }
 }

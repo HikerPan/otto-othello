@@ -1,9 +1,10 @@
-#include "board.h"
+
 #include "uthash.h"
 #include "moves_hashmap.h"
-// Constructor
+#include "board.h"
+
 /**
- * @brief 构造函数
+ * @brief 
  *
  * 初始化棋盘，将棋盘上的每个位置初始化为0。
  * positions是一个大小为64的数组，每个元素初始化为0。
@@ -71,20 +72,26 @@ void othelloBoard_displayLegalMoves(othelloBoard *board) {
     char rowCoord[] = "12345678";
     int colNum = 0, rowNum = 0;
     int moveNum = 1;
-    MovePair_t *keyval = NULL;
+    MovePair_t *curMove = NULL;
     MovePair_t *tmp = NULL;
 
     printf("Legal moves:\n");
 
     // HASH_ITER(hh, board->moves, keyval, tmp) {
-    LL_FOREACH_SAFE(board->moves, keyval, tmp){
-        othelloBoard_index2coord(keyval->position, &colNum, &rowNum);
+    LL_FOREACH_SAFE(board->moves, curMove, tmp){
+        othelloBoard_index2coord(curMove->position, &colNum, &rowNum);
         printf("\t%d\t%c%c will flip: ", moveNum++, colCoord[colNum], rowCoord[rowNum]);
 
-        IntListNode_t *node;
-        LL_FOREACH(keyval->flip_list, node) {
-            othelloBoard_index2coord(node->flip_position, &colNum, &rowNum);
-            printf("%c%c ", colCoord[colNum], rowCoord[rowNum]);
+        // IntListNode_t *node;
+        // LL_FOREACH(curMove->flip_list, node) {
+        //     othelloBoard_index2coord(node->flip_position, &colNum, &rowNum);
+        //     printf("%c%c ", colCoord[colNum], rowCoord[rowNum]);
+        // }
+        for(size_t i = 0; i<MAX_FLIPS;i++){
+            if((curMove->flip_array[i] &(1<<7))!= 0){
+                othelloBoard_index2coord((curMove->flip_array[i]&(0x7F)), &colNum, &rowNum);
+                printf("%c%c ", colCoord[colNum], rowCoord[rowNum]);
+            }
         }
 
         printf("\n");
@@ -143,7 +150,7 @@ void othelloBoard_findLegalMoves(othelloBoard *board, int color, MovePair_t **pM
 void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int color, int direction, MovePair_t **pMoves) {
     // 初始化一个合法的移动和翻转的棋子列表
     MovePair_t *legalMove = NULL;
-    IntListNode_t *flippedDiscs = NULL;
+    uint8_t flippedDiscs[MAX_FLIPS] = {0};
 
     int currentSquare = 0;
     int row1 = 0, col1 = 0, row2 = 0, col2 = 0;
@@ -163,14 +170,28 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
             || (currentSquare == 0 && flip_list_empty(flippedDiscs))) {  // 找到空位，且翻转列表为空，则结束循环
             break;
         } else if (currentSquare == -color) {   //找到对手棋子，则放入翻转列表
-            list_push_front(&flippedDiscs, i);
+            list_push_front(flippedDiscs, i);
+            // if(find_move(*pMoves,i)){
+            //     list_push_front((*pMoves)->flip_array, i);
+            // }
+            // else{
+            //     *pMoves = (MovePair_t *)malloc(sizeof(MovePair_t));
+            //     if(NULL == *pMoves)
+            //     {
+            //         printf("malloc failed\n");
+            //         return;
+            //     }
+            //     (*pMoves)->position = disc;
+            //     list_push_front((*pMoves)->flip_array, i);
+            // }
+            
             continue;
         } else if (currentSquare == 0 && !flip_list_empty(flippedDiscs)) {    //遇到空位，且翻转列表不为空
             MovePair_t *it = find_move(*pMoves, i);
 
             // if (it != NULL && it != find_end(pMoves)) {
             if (it != NULL) {
-                merge_flip_lists(&it->flip_list, flippedDiscs);
+                merge_flip_lists(it->flip_array, flippedDiscs);
             } else {
                 legalMove = (MovePair_t *)malloc(sizeof(MovePair_t));
                 if (legalMove == NULL) {
@@ -179,7 +200,8 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
                 }
                 // printf("[findLegalMoveInDirection] malloc move node at [ 0x%x ]\n",legalMove);
                 legalMove->position = i;
-                legalMove->flip_list = flippedDiscs;
+                merge_flip_lists(legalMove->flip_array, flippedDiscs);
+                // legalMove->flip_list = flippedDiscs;
                 insert_moves(pMoves, legalMove);
             }
 
@@ -201,19 +223,16 @@ void othelloBoard_findLegalMoveInDirection(othelloBoard *board, int disc, int co
  */
 void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move) {
     int square = -1;
-    IntListNode_t *flippedDiscs = NULL;
+    int postion = -1;
+    // IntListNode_t *flippedDiscs = NULL;
 
-    // if(NULL == board || NULL == move)
-    // {
-    //     printf("error pointer.\n");
-    //     return;
-    // }
+
 
     // 获取移动的位置
     square = move->position;
-    flippedDiscs = move->flip_list;
 
-    if (flippedDiscs == NULL) {
+    if (flip_list_empty(move->flip_array)) {
+        
         // printf("flippedDiscs is NULL\n");
         return;
     }
@@ -222,13 +241,13 @@ void othelloBoard_updateBoard(othelloBoard *board, int color, MovePair_t *move) 
     board->positions[square] = color;
 
     // 遍历翻转的棋子列表并将棋子颜色设置为当前玩家颜色
-    IntListNode_t *disc = NULL;
-    IntListNode_t *tmp = NULL;
-    LL_FOREACH_SAFE(flippedDiscs, disc, tmp) {
-        if (disc != NULL) {
-            // 将翻转的棋子位置设置为当前玩家颜色
-            board->positions[disc->flip_position] = color;
+    for(size_t i = 0;i<MAX_FLIPS;i++){
+        if(0 == (move->flip_array[i]&(1<<7))){
+            break;
         }
+
+        postion = move->flip_array[i]&(0x7F);
+        board->positions[postion] = color;
     }
 }
 

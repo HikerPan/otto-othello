@@ -16,6 +16,8 @@ extern "C" {
 #define OTHELLO_BOARD_SIZE      (64)
 
 
+
+
 // 定义 othelloBoard 结构体
 typedef struct {
     int positions[OTHELLO_BOARD_SIZE]; // 棋盘上的所有棋子，1 表示黑棋，-1 表示白棋
@@ -23,7 +25,6 @@ typedef struct {
     float timeLimit;                   // 时间限制
     bool passes[2];                    // 记录最近两次是否为 pass
     MovePair_t *moves;                 // 哈希表存储所有可能的走法
-    bool initFlag;
 } othelloBoard;
 
 // 函数声明

@@ -18,13 +18,13 @@
  * @param moveHistory 历史移动记录
  * @return 返回移动结果，包含移动的行索引和列索引列表
  */
-MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory) {
+MovePair_t *othelloPlayer_move(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool *pass,char *moveHistory) {
     MovePair_t *moveChoice = NULL;
 
     if (player->computer) {
         moveChoice = othelloPlayer_computerMove(player, board, legalMoves, pass, moveHistory);
     } else {
-        moveChoice = othelloPlayer_humanMove(player, legalMoves, &pass);
+        moveChoice = othelloPlayer_humanMove(player, legalMoves, pass);
     }
     
     if (moveChoice == NULL)
@@ -191,7 +191,7 @@ int othelloPlayer_coord2index(char *coord) {
  * @return 返回电脑走法的行列索引对
  */
 
-MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool pass,char *moveHistory) {
+MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board,MovePair_t *legalMoves,bool *pass,char *moveHistory) {
     struct timespec startTime;
     clock_gettime(CLOCK_REALTIME, &startTime);
 
@@ -200,7 +200,7 @@ MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board
 
     if (move_hash_empty(legalMoves)) {
         printf("No legal moves!\n\tComputer passes.\n");
-        pass = true;
+        *pass = true;
         return bestMove;
     } else if (size_moves(legalMoves) == 1) {
         printf("Only one legal move!\n\tComputer takes only legal move.\n");
@@ -210,16 +210,31 @@ MovePair_t *othelloPlayer_computerMove(othelloPlayer *player,othelloBoard *board
         if (maxDepth < 10) {
             printf("Searching remainder of game tree...\n");
             bestMove = othelloPlayer_depthLimitedAlphaBeta(player, board, maxDepth, startTime, board->timeLimit);
+            if(NULL == bestMove)
+                bestMove = legalMoves;
         } else {
             for (int depthLimit = 1; depthLimit <= maxDepth; depthLimit++) {
                 move = othelloPlayer_depthLimitedAlphaBeta(player, board, depthLimit, startTime, board->timeLimit);
-                if (move == NULL || move->position == -1) {
-                    printf("\tSearch aborted.\n");
+                if(NULL == move)
+                {
+                    bestMove = legalMoves;
+                    break;
+                }
+                if(move->position == -1){
+                    printf("\nSearch aborted.\n");
                     if(move){
                         free(move);
                         move = NULL;
                     }
                     break;
+                // }
+                // if (move == NULL) {
+                    
+                //     if(move){
+                //         free(move);
+                //         move = NULL;
+                //     }
+                //     break;
                 } else {
                     bestMove = move;
                 }
@@ -509,17 +524,17 @@ MovePair_t *othelloPlayer_depthLimitedAlphaBeta(othelloPlayer *player,othelloBoa
                             (currentTime.tv_nsec - startTime.tv_nsec) / 1e9;
 
         // 如果时间即将耗尽，则返回失败标志
-        // if (elapsedTime > 0.998 * timeLimit) {
-        //     MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
-        //     if (move == NULL) {
-        //         printf("malloc fail\n");
-        //         return NULL;
-        //     }
-        //     // printf("[depthLimitedAlphaBeta] malloc abort move at [ 0x%x ]\n",move);
-        //     move->position = -1;
-        //     // bestMove = NULL;    
-        //     return move;
-        // }
+        if (elapsedTime > 0.998 * timeLimit) {
+            MovePair_t *move = (MovePair_t *)malloc(sizeof(MovePair_t));
+            if (move == NULL) {
+                printf("malloc fail\n");
+                return NULL;
+            }
+            // printf("[depthLimitedAlphaBeta] malloc abort move at [ 0x%x ]\n",move);
+            move->position = -1;
+            // bestMove = NULL;    
+            return move;
+        }
     }
 
     return bestMove;
